@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +24,16 @@ public class PostController {
 
     //전체 게시물 조회
     @GetMapping
-    public ResponseEntity<Page<PostResponseDto>> getAllPosts(Pageable pageable, HttpSession session){
+    public ResponseEntity<Page<PostResponseDto>> getAllPosts(
+            @PageableDefault(
+                    size = 10,
+                    page = 0,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable,
+            HttpSession session
+    ){
         validateSession(session);
 
         Page<PostResponseDto> posts = postService.getAllPosts(pageable);
@@ -32,7 +43,15 @@ public class PostController {
     //특정 사용자의 게시물 조회
     @GetMapping("/user/{userId}")
     public ResponseEntity<Page<PostResponseDto>> getPostsByUser(
-            @PathVariable Long userId, Pageable pageable, HttpSession session
+            @PathVariable Long userId,
+            @PageableDefault(
+                    size = 10,
+                    page = 0,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable,
+            HttpSession session
     ){
         validateSession(session);
         Page<PostResponseDto> posts = postService.getPostsByUser(userId, pageable);
@@ -59,7 +78,7 @@ public class PostController {
     //세션 검사
     private void validateSession(HttpSession session){
         if(session == null || session.getAttribute("email") == null){
-            throw new RuntimeException("로그인을 해주세요.");
+            throw new IllegalStateException("로그인을 해주세요.");
         }
     }
 }
