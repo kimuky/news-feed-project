@@ -75,7 +75,7 @@ public class UserService {
             if(!Pattern.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$", requestDto.getPassword())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "영어, 숫자, 특수문자 포함 8~20글자까지 입력해주세요");
             }
-            findUser.updateName(requestDto.getName());
+            findUser.updatePassword(passwordEncoder.encode(requestDto.getPassword()));
         }
         return new ProfileUserResponseDto(findUser);
     }
