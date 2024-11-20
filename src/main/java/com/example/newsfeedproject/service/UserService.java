@@ -1,10 +1,7 @@
 package com.example.newsfeedproject.service;
 
 import com.example.newsfeedproject.config.PasswordEncoder;
-import com.example.newsfeedproject.dto.user.LoginUserRequestDto;
-import com.example.newsfeedproject.dto.user.LoginUserResponseDto;
-import com.example.newsfeedproject.dto.user.RegisterUserRequestDto;
-import com.example.newsfeedproject.dto.user.RegisterUserResponseDto;
+import com.example.newsfeedproject.dto.user.*;
 import com.example.newsfeedproject.entity.User;
 import com.example.newsfeedproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -47,9 +45,63 @@ public class UserService {
         return new LoginUserResponseDto(findUser);
     }
 
+    public ProfileUserResponseDto findByUserId(Long userId) {
+        User findUser = findByUserIdOrElseThrow(userId);
+
+        return new ProfileUserResponseDto(findUser);
+    }
+
+    @Transactional
+    public ProfileUserResponseDto updateProfile(Long userId, UpdateUserRequestDto requestDto, String email) {
+        User findUser = findByUserIdOrElseThrow(userId);
+
+        if (!findUser.getEmail().equals(email)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "해당 프로필 유저가 아님");
+        }
+
+        if (requestDto.getName() != null) {
+            findUser.updateName(requestDto.getName());
+        }
+
+        if (requestDto.getAge() != 0) {
+            findUser.updateAge(requestDto.getAge());
+        }
+
+        if (requestDto.getIntroduce() != null) {
+            findUser.updateIntroduce(requestDto.getIntroduce());
+        }
+
+        if (requestDto.getPassword() != null) {
+            if(!Pattern.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$", requestDto.getPassword())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "영어, 숫자, 특수문자 포함 8~20글자까지 입력해주세요");
+            }
+            findUser.updateName(requestDto.getName());
+        }
+        return new ProfileUserResponseDto(findUser);
+    }
+
+    public void deleteProfile(Long userId, PasswordUserRequestDto requestDto, String email) {
+        User findUser = findByUserIdOrElseThrow(userId);
+
+        if (!findUser.getEmail().equals(email) ) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "해당 프로필 유저가 아님");
+        }
+
+        if (!passwordEncoder.matches(requestDto.getPassword(), findUser.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 틀림");
+        }
+
+        userRepository.delete(findUser);
+    }
+
     private User findUserByEmailOrElseThrow(String email) {
         return userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
+    }
+
+    private User findByUserIdOrElseThrow(Long id) {
+        return userRepository.findById(id).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "아이디를 찾을 수 없음"));
     }
 
 }
