@@ -14,7 +14,7 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
@@ -35,9 +35,9 @@ public class User extends BaseEntity {
     public User() {
     }
 
-    public User(RegisterUserRequestDto requestDto) {
+    public User(RegisterUserRequestDto requestDto, String encodePassword) {
         this.email = requestDto.getEmail();
-        this.password = requestDto.getPassword();
+        this.password = encodePassword;
         this.name = requestDto.getName();
         this.age = requestDto.getAge();
         this.activated = 1;
