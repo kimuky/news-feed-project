@@ -1,6 +1,8 @@
 package com.example.newsfeedproject.service;
 
 import com.example.newsfeedproject.config.PasswordEncoder;
+import com.example.newsfeedproject.dto.user.LoginUserRequestDto;
+import com.example.newsfeedproject.dto.user.LoginUserResponseDto;
 import com.example.newsfeedproject.dto.user.RegisterUserRequestDto;
 import com.example.newsfeedproject.dto.user.RegisterUserResponseDto;
 import com.example.newsfeedproject.entity.User;
@@ -24,7 +26,7 @@ public class UserService {
     public RegisterUserResponseDto registerUser(RegisterUserRequestDto requestDto) {
         User user = new User(requestDto, passwordEncoder.encode(requestDto.getPassword()));
 
-        Optional<User> findUser = findByIdOrElseThrow(user.getEmail());
+        Optional<User> findUser = userRepository.findUserByEmail(requestDto.getEmail());
 
         if (findUser.isPresent()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "중복된 아이디입니다.");
@@ -35,7 +37,19 @@ public class UserService {
         return new RegisterUserResponseDto(saveUser);
     }
 
-    private Optional<User> findByIdOrElseThrow(String email) {
-        return userRepository.findUserByEmail(email);
+    public LoginUserResponseDto login(LoginUserRequestDto requestDto) {
+        User findUser = findUserByEmailOrElseThrow(requestDto.getEmail());
+
+        if (!passwordEncoder.matches(requestDto.getPassword(), findUser.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 틀림");
+        }
+
+        return new LoginUserResponseDto(findUser);
     }
+
+    private User findUserByEmailOrElseThrow(String email) {
+        return userRepository.findUserByEmail(email).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
+    }
+
 }
