@@ -1,16 +1,16 @@
 package com.example.newsfeedproject.controller;
 
 import com.example.newsfeedproject.dto.friend.FriendRequestDto;
+import com.example.newsfeedproject.dto.friend.FriendResponseDto;
 import com.example.newsfeedproject.service.FriendService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/friends")
@@ -20,7 +20,7 @@ public class FriendController {
     private final FriendService friendService;
 
     @PostMapping
-    public ResponseEntity<Void> requestFriend (@RequestBody FriendRequestDto requestDto, HttpServletRequest servletRequest) {
+    public ResponseEntity<Void> requestFriend(@RequestBody FriendRequestDto requestDto, HttpServletRequest servletRequest) {
 
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
@@ -29,4 +29,16 @@ public class FriendController {
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    @GetMapping
+    public ResponseEntity<List<FriendResponseDto>> FindFriendList(HttpServletRequest servletRequest) {
+
+        HttpSession session = servletRequest.getSession();
+        String email = String.valueOf(session.getAttribute("email"));
+
+        List<FriendResponseDto> allByEmail = friendService.findAllByEmail(email);
+
+        return new ResponseEntity<>(allByEmail, HttpStatus.CREATED);
+    }
+
 }
