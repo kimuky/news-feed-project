@@ -61,5 +61,6 @@ public class User extends BaseEntity {
 
     public void softDelete(){
         this.activated = 0;
+        this.deletedAt = LocalDateTime.now();
     }
 }
