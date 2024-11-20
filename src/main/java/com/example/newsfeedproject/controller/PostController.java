@@ -25,8 +25,9 @@ public class PostController {
     @GetMapping
     public ResponseEntity<Page<PostResponseDto>> getAllPosts(Pageable pageable, HttpSession session){
         validateSession(session);
+
         Page<PostResponseDto> posts = postService.getAllPosts(pageable);
-        return ResponseEntity<>(posts, HttpStatus.OK);
+        return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
     //특정 사용자의 게시물 조회
@@ -37,11 +38,12 @@ public class PostController {
         validateSession(session);
         Page<PostResponseDto> posts = postService.getPostsByUser(userId, pageable);
 
+        ResponseEntity<Page<PostResponseDto>> ResponseEntity;
         if(posts.isEmpty()){
-            return ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        return ResponseEntity<>(posts, HttpStatus.OK);
+        return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
     //단일 게시물 조회
