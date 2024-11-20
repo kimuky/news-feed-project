@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +48,35 @@ public class UserService {
     public ProfileUserResponseDto findByUserId(Long userId) {
         User findUser = findByUserIdOrElseThrow(userId);
 
+        return new ProfileUserResponseDto(findUser);
+    }
+
+    @Transactional
+    public ProfileUserResponseDto updateProfile(Long userId, UpdateUserRequestDto requestDto, String email) {
+        User findUser = findByUserIdOrElseThrow(userId);
+
+        if (!findUser.getEmail().equals(email)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "해당 프로필 유저가 아님");
+        }
+
+        if (requestDto.getName() != null) {
+            findUser.updateName(requestDto.getName());
+        }
+
+        if (requestDto.getAge() != 0) {
+            findUser.updateAge(requestDto.getAge());
+        }
+
+        if (requestDto.getIntroduce() != null) {
+            findUser.updateIntroduce(requestDto.getIntroduce());
+        }
+
+        if (requestDto.getPassword() != null) {
+            if(!Pattern.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$", requestDto.getPassword())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "영어, 숫자, 특수문자 포함 8~20글자까지 입력해주세요");
+            }
+            findUser.updateName(requestDto.getName());
+        }
         return new ProfileUserResponseDto(findUser);
     }
 
