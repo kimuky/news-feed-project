@@ -58,4 +58,8 @@ public class User extends BaseEntity {
     public void updatePassword(String password) {
         this.password = password;
     }
+
+    public void softDelete(){
+        this.activated = 0;
+    }
 }

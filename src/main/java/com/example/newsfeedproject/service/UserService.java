@@ -80,7 +80,8 @@ public class UserService {
         return new ProfileUserResponseDto(findUser);
     }
 
-    public void deleteProfile(Long userId, PasswordUserRequestDto requestDto, String email) {
+    @Transactional
+    public void softDeleteProfile(Long userId, PasswordUserRequestDto requestDto, String email) {
         User findUser = findByUserIdOrElseThrow(userId);
 
         if (!findUser.getEmail().equals(email) ) {
@@ -90,8 +91,7 @@ public class UserService {
         if (!passwordEncoder.matches(requestDto.getPassword(), findUser.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 틀림");
         }
-
-        userRepository.delete(findUser);
+        findUser.softDelete();
     }
 
     private User findUserByEmailOrElseThrow(String email) {
@@ -103,5 +103,4 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "아이디를 찾을 수 없음"));
     }
-
 }

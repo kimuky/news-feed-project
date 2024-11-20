@@ -53,13 +53,13 @@ public class UserController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{userId}")
+    @PutMapping("/{userId}")
     public ResponseEntity<Void> deleteProfile(@PathVariable Long userId, @RequestBody PasswordUserRequestDto requestDto, HttpServletRequest servletRequest) {
 
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
-        userService.deleteProfile(userId, requestDto, email);
+        userService.softDeleteProfile(userId, requestDto, email);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
