@@ -12,7 +12,7 @@ public class RegisterUserRequestDto {
     @Email (message = "이메일 형식을 맞춰주세요")
     private final String email;
 
-    @NotBlank(message = "이메일을 꼭 입력해주세요")
+    @NotBlank(message = "패스워드를 꼭 입력해주세요")
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$", message = "영어, 숫자, 특수문자 포함 8~20글자까지 입력해주세요")
     private final String password;
 
