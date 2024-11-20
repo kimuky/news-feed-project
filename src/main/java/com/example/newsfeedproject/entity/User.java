@@ -1,5 +1,6 @@
 package com.example.newsfeedproject.entity;
 
+import com.example.newsfeedproject.dto.user.RegisterUserRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -22,16 +23,23 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(columnDefinition = "bit")
     private int age;
 
     private String introduce;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "bit")
     private int activated;
 
     private LocalDateTime deletedAt;
 
     public User() {
+    }
+
+    public User(RegisterUserRequestDto requestDto) {
+        this.email = requestDto.getEmail();
+        this.password = requestDto.getPassword();
+        this.name = requestDto.getName();
+        this.age = requestDto.getAge();
+        this.activated = 1;
     }
 }
