@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -43,7 +41,7 @@ public class PostService {
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
         Post post = new Post(findUser, postRequestDto.getTitle(), postRequestDto.getContent());
 
-        Post savePost = postRepository.save(post);;
+        Post savePost = postRepository.save(post);
         return PostResponseDto.fromEntity(savePost);
     }
 
