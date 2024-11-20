@@ -1,9 +1,6 @@
 package com.example.newsfeedproject.controller;
 
-import com.example.newsfeedproject.dto.user.LoginUserRequestDto;
-import com.example.newsfeedproject.dto.user.LoginUserResponseDto;
-import com.example.newsfeedproject.dto.user.RegisterUserRequestDto;
-import com.example.newsfeedproject.dto.user.RegisterUserResponseDto;
+import com.example.newsfeedproject.dto.user.*;
 import com.example.newsfeedproject.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -37,9 +34,11 @@ public class UserController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @GetMapping("{asd}")
-    public ResponseEntity<Void> df(HttpServletRequest servletRequest) {
+    @GetMapping("/{userId}")
+    public ResponseEntity<ProfileUserResponseDto> findByUserId(@PathVariable Long userId) {
 
-        return null;
+        ProfileUserResponseDto responseDto = userService.findByUserId(userId);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

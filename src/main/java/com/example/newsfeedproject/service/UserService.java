@@ -1,10 +1,7 @@
 package com.example.newsfeedproject.service;
 
 import com.example.newsfeedproject.config.PasswordEncoder;
-import com.example.newsfeedproject.dto.user.LoginUserRequestDto;
-import com.example.newsfeedproject.dto.user.LoginUserResponseDto;
-import com.example.newsfeedproject.dto.user.RegisterUserRequestDto;
-import com.example.newsfeedproject.dto.user.RegisterUserResponseDto;
+import com.example.newsfeedproject.dto.user.*;
 import com.example.newsfeedproject.entity.User;
 import com.example.newsfeedproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,9 +44,19 @@ public class UserService {
         return new LoginUserResponseDto(findUser);
     }
 
+    public ProfileUserResponseDto findByUserId(Long userId) {
+        User findUser = findByUserIdOrElseThrow(userId);
+
+        return new ProfileUserResponseDto(findUser);
+    }
+
     private User findUserByEmailOrElseThrow(String email) {
         return userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
     }
 
+    private User findByUserIdOrElseThrow(Long id) {
+        return userRepository.findById(id).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "아이디를 찾을 수 없음"));
+    }
 }
