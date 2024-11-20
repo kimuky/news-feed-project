@@ -42,4 +42,20 @@ public class User extends BaseEntity {
         this.age = requestDto.getAge();
         this.activated = 1;
     }
+
+    public void updateName (String name) {
+        this.name = name;
+    }
+
+    public void updateAge (int age) {
+        this.age = age;
+    }
+
+    public void updateIntroduce (String introduce) {
+        this.introduce = introduce;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }
