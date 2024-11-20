@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.support.SessionStatus;
 
 @RestController
 @RequestMapping("/posts")
@@ -38,7 +37,6 @@ public class PostController {
         validateSession(session);
         Page<PostResponseDto> posts = postService.getPostsByUser(userId, pageable);
 
-        ResponseEntity<Page<PostResponseDto>> ResponseEntity;
         if(posts.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
