@@ -80,6 +80,20 @@ public class UserService {
         return new ProfileUserResponseDto(findUser);
     }
 
+    public void deleteProfile(Long userId, PasswordUserRequestDto requestDto, String email) {
+        User findUser = findByUserIdOrElseThrow(userId);
+
+        if (!findUser.getEmail().equals(email) ) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "해당 프로필 유저가 아님");
+        }
+
+        if (!passwordEncoder.matches(requestDto.getPassword(), findUser.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 틀림");
+        }
+
+        userRepository.delete(findUser);
+    }
+
     private User findUserByEmailOrElseThrow(String email) {
         return userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
@@ -89,4 +103,5 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "아이디를 찾을 수 없음"));
     }
+
 }
