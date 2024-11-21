@@ -87,7 +87,6 @@ public class PostService {
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
 
         Post findPost = findPostById(postId);
-        findPost.getUser().getId();
 
         validatePostOwner(findPost, findUser);
 
