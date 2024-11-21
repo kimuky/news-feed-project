@@ -1,7 +1,7 @@
 package com.example.newsfeedproject.controller;
 
 import com.example.newsfeedproject.dto.friend.FriendRequestDto;
-import com.example.newsfeedproject.dto.friend.FriendResponseDto;
+import com.example.newsfeedproject.dto.friend.FriendListResponseDto;
 import com.example.newsfeedproject.service.FriendService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -31,12 +31,12 @@ public class FriendController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FriendResponseDto>> FindFriendList(HttpServletRequest servletRequest) {
+    public ResponseEntity<List<FriendListResponseDto>> findFriendList(HttpServletRequest servletRequest) {
 
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
-        List<FriendResponseDto> allByEmail = friendService.findAllByEmail(email);
+        List<FriendListResponseDto> allByEmail = friendService.findFriendList(email);
 
         return new ResponseEntity<>(allByEmail, HttpStatus.CREATED);
     }
