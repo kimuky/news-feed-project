@@ -61,7 +61,7 @@ public class PostService {
     }
 
     private Post findPostById(Long postId) {
-        return postRepository.findById(postId).orElseThrow(()->new IllegalArgumentException("잘못된 게시물 id 입니다"));
+        return postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("잘못된 게시물 id 입니다"));
     }
 
     @Transactional
@@ -70,7 +70,7 @@ public class PostService {
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
         Post findPost = findPostById(postId);
         findPost.getUser().getId();
-        if(!findPost.getUser().getId().equals(findUser.getId())) {
+        if (!findPost.getUser().getId().equals(findUser.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 게시글을 삭제할 수 있습니다");
         }
         postRepository.deleteById(postId);
