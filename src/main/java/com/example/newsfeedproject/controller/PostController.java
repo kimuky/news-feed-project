@@ -6,7 +6,6 @@ import com.example.newsfeedproject.dto.post.PostUpdateRequestDto;
 import com.example.newsfeedproject.dto.post.PostUpdateResponseDto;
 import com.example.newsfeedproject.dto.post.like.PostLikeResponseDto;
 import com.example.newsfeedproject.service.PostService;
-import com.example.newsfeedproject.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;

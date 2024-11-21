@@ -13,7 +13,6 @@ import com.example.newsfeedproject.repository.PostRepository;
 import com.example.newsfeedproject.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
