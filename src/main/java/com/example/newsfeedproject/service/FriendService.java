@@ -30,15 +30,23 @@ public class FriendService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 요청을 할 수 없습니다.");
         }
 
-        List<Friend> friendByToUserIdAndFromUserId = friendRepository.findFriendByToUserIdAndFromUserId(toUser, fromUser);
+        List<Friend> findRelation = friendRepository.findFriendByToUserIdAndFromUserId(toUser, fromUser);
 
-        if (!friendByToUserIdAndFromUserId.isEmpty()){
+        if (!findRelation.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "한번 더 친구 요청을 할 수 없습니다. ");
         }
 
-        Friend friend = new Friend(fromUser, toUser);
-
-        friendRepository.save(friend);
+        // 이미 친구 요청한 상대에게 친추를 한경우
+        List<Friend> alreadyRequest = friendRepository.findFriendByToUserIdAndFromUserId(fromUser, toUser);
+        if (!alreadyRequest.isEmpty()) {
+            Friend fromFriend = new Friend(toUser, fromUser, 1);
+            friendRepository.save(fromFriend);
+            Friend toFriend = new Friend(fromUser, toUser, 1);
+            friendRepository.save(toFriend);
+        } else {
+            Friend friend = new Friend(fromUser, toUser);
+            friendRepository.save(friend);
+        }
     }
 
     @Transactional
