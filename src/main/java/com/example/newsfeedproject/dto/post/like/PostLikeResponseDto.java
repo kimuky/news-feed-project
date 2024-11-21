@@ -5,9 +5,14 @@ import lombok.Getter;
 
 @Getter
 public class PostLikeResponseDto {
+
     private Long id;
+
     private Long postId;
+
     private Long userId;
+
+    private String message;
 
     public static PostLikeResponseDto fromEntity(PostLike postLike) {
         PostLikeResponseDto postLikeResponseDto = new PostLikeResponseDto();
@@ -17,5 +22,9 @@ public class PostLikeResponseDto {
         postLikeResponseDto.userId = postLike.getUser().getId();
 
         return postLikeResponseDto;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

@@ -13,6 +13,7 @@ import com.example.newsfeedproject.repository.PostRepository;
 import com.example.newsfeedproject.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -93,9 +94,10 @@ public class PostService {
         postRepository.deleteById(postId);
     }
 
+
     @Transactional
     public PostLikeResponseDto insertLike(Long postId, String email) {
-        // 넘겨받은 email을 통해 사용자를 찾음. 이는 user_id 컬럼에 삽임됨.
+        // 넘겨받은 email 통해 사용자를 찾음. 이는 user_id 컬럼에 삽임됨.
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
 
@@ -104,13 +106,32 @@ public class PostService {
         Post post = postRepository.findById(postId).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없음"));
 
+        boolean alreadyLiked = likeRepository.existsByUserAndPost(findUser, post);
+        if(alreadyLiked) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 좋아요를 눌렀습니다.");
+        }
         // user_id, post_id를 테이블에 업데이트 함.
         PostLike postLike = new PostLike(findUser, post);
-
-
+        post.incrementLikeCount();
 
         return PostLikeResponseDto.fromEntity(likeRepository.save(postLike));
     }
 
+    @Transactional
+    public void deleteLike(Long postId, String email) {
+        User findUser = userRepository.findUserByEmail(email).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
+
+        Post post = postRepository.findById(postId).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없음"));
+
+        PostLike postLike = likeRepository.findByUserAndPost(findUser, post).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "좋아요 하지 않음"));
+
+
+
+        likeRepository.delete(postLike);
+        post.decrementLikeCount();
+    }
 
 }
