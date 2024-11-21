@@ -34,6 +34,14 @@ public class Friend {
         this.friendRequest = 0;
     }
 
+    public Friend(User fromUserId, User toUserId, int friendRequest) {
+        this.id = new FriendId(fromUserId.getId(), toUserId.getId());
+        this.fromUserId = fromUserId;
+        this.toUserId = toUserId;
+        this.friendRequest = friendRequest;
+        this.relatedAt = LocalDateTime.now();
+    }
+
     public Friend() {
     }
 }

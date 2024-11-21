@@ -51,4 +51,23 @@ public class FriendService {
 
         return friendRepository.findFriendList(findUser);
     }
+
+    @Transactional
+    public void acceptFriendRequest(String email, Long friendId) {
+        User fromUser = userRepository.findUserByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없음"));
+        User toUser = userRepository.findById(friendId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없음"));
+
+        if (fromUser.getId().equals(toUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 수락을 할 수 없습니다.");
+        }
+
+        // 친구 요청한 사람 레코드 갱신
+        Friend fromFriend = new Friend(toUser, fromUser, 1);
+        friendRepository.save(fromFriend);
+
+        // 친구 요청 받은 사람 레코드 추가
+        Friend toFriend = new Friend(fromUser, toUser, 1);
+        friendRepository.save(toFriend);
+    }
+
 }

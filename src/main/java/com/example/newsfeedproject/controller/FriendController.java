@@ -41,4 +41,15 @@ public class FriendController {
         return new ResponseEntity<>(friendList, HttpStatus.OK);
     }
 
+    @PutMapping("/{friendId}")
+    public ResponseEntity<Void> acceptFriendRequest(@PathVariable Long friendId, HttpServletRequest servletRequest) {
+
+        HttpSession session = servletRequest.getSession();
+        String email = String.valueOf(session.getAttribute("email"));
+
+        friendService.acceptFriendRequest(email, friendId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
