@@ -20,9 +20,7 @@ public class FriendController {
     private final FriendService friendService;
 
     @PostMapping
-    public ResponseEntity<Void> requestFriend(@RequestBody FriendRequestDto requestDto,
-                                              HttpServletRequest servletRequest) {
-
+    public ResponseEntity<Void> requestFriend(@RequestBody FriendRequestDto requestDto, HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
@@ -33,7 +31,6 @@ public class FriendController {
 
     @GetMapping
     public ResponseEntity<List<FriendListResponseDto>> findFriendList(HttpServletRequest servletRequest) {
-
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
@@ -44,7 +41,6 @@ public class FriendController {
 
     @PutMapping("/{friendId}")
     public ResponseEntity<Void> acceptFriendRequest(@PathVariable Long friendId, HttpServletRequest servletRequest) {
-
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
@@ -55,7 +51,6 @@ public class FriendController {
 
     @DeleteMapping("/{friendId}/reject")
     public ResponseEntity<Void> rejectFriendRequest(@PathVariable Long friendId, HttpServletRequest servletRequest) {
-
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 

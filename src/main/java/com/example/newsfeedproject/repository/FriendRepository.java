@@ -16,13 +16,10 @@ public interface FriendRepository extends JpaRepository<Friend, FriendId> {
     List<Friend> findFriendByToUserIdAndFromUserId(User toUserId, User fromUserId);
 
     // 친구 요청을 한 아이디와 이름을 반환
-    @Query(value = "select new  com.example.newsfeedproject.dto.friend.FriendListResponseDto(u.id, u.name) from friend f  join f.fromUserId u where f.toUserId = :user_id")
+    @Query(value = "select new  com.example.newsfeedproject.dto.friend.FriendListResponseDto(u.id, u.name) " +
+            "from friend f  join f.fromUserId u where f.toUserId = :user_id")
     List<FriendListResponseDto> findFriendList(@Param(value = "user_id") User user_id);
 
+    // 친구레코드 삭제
     void deleteByFromUserIdAndToUserId(User fromUser, User toUser);
-
-
-    // TODO 공부
-    // List<Friend> findByUser_Id(Long userId);
-
 }

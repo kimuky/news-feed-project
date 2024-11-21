@@ -22,10 +22,11 @@ public class UserService {
 
     @Transactional
     public RegisterUserResponseDto registerUser(RegisterUserRequestDto requestDto) {
+        // 비밀번호 암호화
         User user = new User(requestDto, passwordEncoder.encode(requestDto.getPassword()));
-
         Optional<User> findUser = userRepository.findUserByEmail(requestDto.getEmail());
 
+        // 아메일이 중복일 시, 중복 예외 처리
         if (findUser.isPresent()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "중복된 아이디입니다.");
         }
@@ -38,6 +39,7 @@ public class UserService {
     public LoginUserResponseDto login(LoginUserRequestDto requestDto) {
         User findUser = findUserByEmailOrElseThrow(requestDto.getEmail());
 
+        // 패스워드가 일치하지 않을 시, 예외처리
         if (!passwordEncoder.matches(requestDto.getPassword(), findUser.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 틀림");
         }
@@ -55,6 +57,7 @@ public class UserService {
     public ProfileUserResponseDto updateProfile(Long userId, UpdateUserRequestDto requestDto, String email) {
         User findUser = findByUserIdOrElseThrow(userId);
 
+        // 인가
         if (!findUser.getEmail().equals(email)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "해당 프로필 유저가 아님");
         }
@@ -91,6 +94,8 @@ public class UserService {
         if (!passwordEncoder.matches(requestDto.getPassword(), findUser.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드가 틀림");
         }
+
+        // 유저 소프트딜리트
         findUser.softDelete();
     }
 
