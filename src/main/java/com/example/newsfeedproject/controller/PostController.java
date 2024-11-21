@@ -15,30 +15,50 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 @RestController
-@RequestMapping("/posts")
 @RequiredArgsConstructor
+@RequestMapping("/posts")
 public class PostController {
 
     private final PostService postService;
 
-    //전체 게시물 조회
-    @GetMapping
-    public ResponseEntity<Page<PostResponseDto>> getAllPosts(
-            @PageableDefault(
-                    size = 10,
-                    page = 0,
-                    sort = "createdAt",
-                    direction = Sort.Direction.DESC
-            )
-            Pageable pageable,
-            HttpSession session
-    ){
-        validateSession(session);
 
-        Page<PostResponseDto> posts = postService.getAllPosts(pageable);
-        return new ResponseEntity<>(posts, HttpStatus.OK);
+
+    //작성
+    @PostMapping()
+    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postRequestDto, HttpServletRequest servletRequest) {
+        HttpSession session = servletRequest.getSession();
+        String email = String.valueOf(session.getAttribute("email"));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(postRequestDto, email));
     }
+
+
+    //수정
+
+
+//전체 게시물 조회
+@GetMapping
+public ResponseEntity<Page<PostResponseDto>> getAllPosts(
+        @PageableDefault(
+                size = 10,
+                page = 0,
+                sort = "createdAt",
+                direction = Sort.Direction.DESC
+        )
+        Pageable pageable,
+        HttpSession session
+){
+    validateSession(session);
+
+    Page<PostResponseDto> posts = postService.getAllPosts(pageable);
+    return new ResponseEntity<>(posts, HttpStatus.OK);
+}
 
     //특정 사용자의 게시물 조회
     @GetMapping("/user/{userId}")

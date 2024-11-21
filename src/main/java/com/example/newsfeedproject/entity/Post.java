@@ -26,4 +26,10 @@ public class Post extends BaseEntity {
 
     public Post() {
     }
+
+    public Post(User user,String title, String content ) {
+        this.title = title;
+        this.content = content;
+        this.user = user;
+    }
 }

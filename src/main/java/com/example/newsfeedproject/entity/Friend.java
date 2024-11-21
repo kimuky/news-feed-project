@@ -29,4 +29,10 @@ public class Friend {
 
     public Friend() {
     }
+
+    public Friend(Long fromUserId, User user) {
+        this.fromUserId = fromUserId;
+        this.user = user;
+        this.friendRequest = 0;
+    }
 }
