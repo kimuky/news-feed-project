@@ -36,9 +36,9 @@ public class FriendController {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
-        List<FriendListResponseDto> allByEmail = friendService.findFriendList(email);
+        List<FriendListResponseDto> friendList = friendService.findFriendList(email);
 
-        return new ResponseEntity<>(allByEmail, HttpStatus.CREATED);
+        return new ResponseEntity<>(friendList, HttpStatus.OK);
     }
 
 }
