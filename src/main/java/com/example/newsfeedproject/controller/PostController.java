@@ -1,9 +1,11 @@
 package com.example.newsfeedproject.controller;
 
+import com.example.newsfeedproject.dto.post.PostRequestDto;
 import com.example.newsfeedproject.dto.post.PostResponseDto;
 import com.example.newsfeedproject.dto.post.PostUpdateRequestDto;
 import com.example.newsfeedproject.dto.post.PostUpdateResponseDto;
 import com.example.newsfeedproject.service.PostService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -58,23 +60,22 @@ public class PostController {
     }
 
 
-//전체 게시물 조회
-@GetMapping
-public ResponseEntity<Page<PostResponseDto>> getAllPosts(
-        @PageableDefault(
-                size = 10,
-                page = 0,
-                sort = "createdAt",
-                direction = Sort.Direction.DESC
-        )
-        Pageable pageable,
-        HttpSession session
-){
-    validateSession(session);
-
-    Page<PostResponseDto> posts = postService.getAllPosts(pageable);
-    return new ResponseEntity<>(posts, HttpStatus.OK);
-}
+    //전체 게시물 조회
+    @GetMapping
+    public ResponseEntity<Page<PostResponseDto>> getAllPosts(
+            @PageableDefault(
+                    size = 10,
+                    page = 0,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable,
+            HttpSession session
+    ){
+        validateSession(session);
+        Page<PostResponseDto> posts = postService.getAllPosts(pageable);
+        return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
 
     //특정 사용자의 게시물 조회
     @GetMapping("/user/{userId}")
@@ -91,24 +92,17 @@ public ResponseEntity<Page<PostResponseDto>> getAllPosts(
     ){
         validateSession(session);
         Page<PostResponseDto> posts = postService.getPostsByUser(userId, pageable);
-
-        if(posts.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
     //단일 게시물 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postId, HttpSession session){
+    public ResponseEntity<PostResponseDto> getPostById(
+            @PathVariable Long postId,
+            HttpSession session){
         validateSession(session);
-        try{
-            PostResponseDto post = postService.getPostById(postId);
-            return new ResponseEntity<>(post, HttpStatus.OK);
-        } catch (IllegalArgumentException e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        PostResponseDto post = postService.getPostById(postId);
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
     //세션 검사
