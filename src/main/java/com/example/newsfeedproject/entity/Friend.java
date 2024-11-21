@@ -6,33 +6,34 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@Entity
+@Entity(name = "friend")
 public class Friend {
 
-    @Id
-    private Long fromUserId;
-    private LocalDateTime relatedAt;
+    @EmbeddedId
+    private FriendId id;
 
-    // 0, 1
-    // 0: 친구 수락 대기
-    // 1: 친구 상태
+    @MapsId("fromUserId")
+    @ManyToOne
+    @JoinColumn(name = "from_user_id")
+    private User fromUserId;
+
+    @MapsId("toUserId")
+    @ManyToOne
+    @JoinColumn(name = "to_user_id")
+    private User toUserId;
+
     @Column(columnDefinition = "bit")
     private int friendRequest;
 
-    @ManyToOne
-    @JoinColumn(name = "to_user_id")
-    private User user;
+    private LocalDateTime relatedAt;
 
-    public void setUser (User user ) {
-        this.user = user;
+    public Friend(User fromUserId, User toUserId) {
+        this.id = new FriendId(fromUserId.getId(), toUserId.getId());
+        this.fromUserId = fromUserId;
+        this.toUserId = toUserId;
+        this.friendRequest = 0;
     }
 
     public Friend() {
-    }
-
-    public Friend(Long fromUserId, User user) {
-        this.fromUserId = fromUserId;
-        this.user = user;
-        this.friendRequest = 0;
     }
 }
