@@ -10,6 +10,7 @@ public class PostUpdateResponseDto {
     private String content;//작성자 이름
     private String createdDate; //작성일
     private String modifiedDate;
+    private String message;
 
     //Post Entity -> Dto 변환
     public static PostUpdateResponseDto fromEntity(Post post){
@@ -22,5 +23,9 @@ public class PostUpdateResponseDto {
         dto.modifiedDate = post.getUpdatedAt().toString();
 
         return dto;
+    }
+
+    public void setMessage(String message){
+        this.message = message;
     }
 }

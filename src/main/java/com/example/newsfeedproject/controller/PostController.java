@@ -4,6 +4,7 @@ import com.example.newsfeedproject.dto.post.PostRequestDto;
 import com.example.newsfeedproject.dto.post.PostResponseDto;
 import com.example.newsfeedproject.dto.post.PostUpdateRequestDto;
 import com.example.newsfeedproject.dto.post.PostUpdateResponseDto;
+import com.example.newsfeedproject.dto.post.like.PostLikeResponseDto;
 import com.example.newsfeedproject.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -31,27 +32,36 @@ public class PostController {
 
     //작성
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postRequestDto, HttpServletRequest servletRequest) {
+    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postRequestDto,
+                                                      HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(postRequestDto, email));
+
+        PostResponseDto post = postService.createPost(postRequestDto, email);
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
 
     //수정
     @PatchMapping("/{id}")
-    public ResponseEntity<PostUpdateResponseDto> updatePost(@RequestBody PostUpdateRequestDto postUpdateRequestDto, @PathVariable Long id, HttpServletRequest servletRequest) {
+    public ResponseEntity<PostUpdateResponseDto> updatePost(@RequestBody PostUpdateRequestDto postUpdateRequestDto,
+                                                            @PathVariable Long id,
+                                                            HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
-        return ResponseEntity.ok().body(postService.updatePost(id, postUpdateRequestDto, email));
+        PostUpdateResponseDto post = postService.updatePost(id, postUpdateRequestDto, email);
+        post.setMessage("update Complete");
+        return new ResponseEntity<>(post, HttpStatus.OK);
+
     }
 
 
     //삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePost(@PathVariable Long id, HttpServletRequest servletRequest) {
+    public ResponseEntity<String> deletePost(@PathVariable Long id,
+                                             HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
         postService.deletePost(id, email);
@@ -118,4 +128,17 @@ public class PostController {
             throw new IllegalStateException("로그인을 해주세요.");
         }
     }
+
+    //게시물 좋아요 활성화
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<PostLikeResponseDto> insertPostLike( @PathVariable Long postId, HttpServletRequest servletRequest) {
+        HttpSession session = servletRequest.getSession();
+        String email = String.valueOf(session.getAttribute("email"));
+
+        PostLikeResponseDto postLike = postService.insertLike(postId, email);
+
+        return new ResponseEntity<>(postLike, HttpStatus.OK);
+
+    }
+    //게시물 좋아요 비활성화
 }
