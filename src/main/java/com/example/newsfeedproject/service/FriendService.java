@@ -1,7 +1,7 @@
 package com.example.newsfeedproject.service;
 
-import com.example.newsfeedproject.dto.friend.FriendRequestDto;
 import com.example.newsfeedproject.dto.friend.FriendListResponseDto;
+import com.example.newsfeedproject.dto.friend.FriendRequestDto;
 import com.example.newsfeedproject.entity.Friend;
 import com.example.newsfeedproject.entity.User;
 import com.example.newsfeedproject.repository.FriendRepository;
@@ -70,4 +70,19 @@ public class FriendService {
         friendRepository.save(toFriend);
     }
 
+    @Transactional
+    public void rejectFriendRequest(String email, Long friendId) {
+        // 로그인 한 사용자
+        User toUser = userRepository.findUserByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없음"));
+
+        // 친구요청한 사용자
+        User fromUser = userRepository.findById(friendId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저를 찾을 수 없음"));
+
+        if (fromUser.getId().equals(toUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 거절을 할 수 없습니다.");
+        }
+
+        friendRepository.deleteByFromUserIdAndToUserId(fromUser, toUser);
+        friendRepository.deleteByFromUserIdAndToUserId(toUser, fromUser);
+    }
 }
