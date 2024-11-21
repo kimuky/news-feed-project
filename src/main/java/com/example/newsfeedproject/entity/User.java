@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@Entity
+@Entity(name = "user")
 public class User extends BaseEntity {
 
     @Id
