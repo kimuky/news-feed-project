@@ -8,7 +8,6 @@ import com.example.newsfeedproject.dto.post.like.PostLikeResponseDto;
 import com.example.newsfeedproject.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
