@@ -10,8 +10,6 @@ public class RegisterUserResponseDto {
 
     private final String email;
 
-    private final String password;
-
     private final String name;
 
     private final int age;
@@ -21,7 +19,6 @@ public class RegisterUserResponseDto {
     public RegisterUserResponseDto(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
-        this.password = user.getPassword();
         this.name = user.getName();
         this.age = user.getAge();
         this.activated = user.getActivated();

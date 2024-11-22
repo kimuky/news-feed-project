@@ -6,7 +6,9 @@ import java.io.Serializable;
 
 @Embeddable
 public class FriendId implements Serializable {
+
     private Long fromUserId;
+
     private Long toUserId;
 
     public FriendId(Long id, Long id1) {
@@ -15,6 +17,5 @@ public class FriendId implements Serializable {
     }
 
     public FriendId() {
-
     }
 }
