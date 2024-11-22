@@ -5,11 +5,13 @@ import com.example.newsfeedproject.dto.comment.CommentResponseDto;
 import com.example.newsfeedproject.dto.comment.CommentUpdateRequestDto;
 import com.example.newsfeedproject.dto.comment.CommentUpdateResponseDto;
 import com.example.newsfeedproject.dto.post.PostUpdateRequestDto;
+import com.example.newsfeedproject.dto.post.like.CommentLikeResponseDto;
 import com.example.newsfeedproject.entity.Post;
 import com.example.newsfeedproject.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.hibernate.query.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -60,6 +62,29 @@ public class CommentController {
         commentService.deleteComment(commentId, email);
 
         return ResponseEntity.ok().body("삭제되었습니다.");
+    }
+
+    //댓글 좋아요
+    @PostMapping("/{commentId}/like")
+    public ResponseEntity<CommentLikeResponseDto> insertCommentLike(@PathVariable Long commentId,
+                                                                    HttpServletRequest servletRequest) {
+        HttpSession session = servletRequest.getSession();
+        String email = String.valueOf(session.getAttribute("email"));
+
+        CommentLikeResponseDto commentLike = commentService.insertLike(commentId, email);
+        commentLike.setMessage("좋아요를 눌렀습니다");
+
+        return new ResponseEntity<>(commentLike, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{commentId}/like")
+    public ResponseEntity<String> deleteCommentLike(@PathVariable Long commentId, HttpServletRequest servletRequest) {
+        HttpSession session = servletRequest.getSession();
+        String email = String.valueOf(session.getAttribute("email"));
+
+        commentService.deleteLike(commentId, email);
+
+        return ResponseEntity.ok().body("좋아요 삭제 완료.");
     }
 
 
