@@ -1,7 +1,7 @@
 package com.example.newsfeedproject.controller;
 
-import com.example.newsfeedproject.dto.friend.FriendRequestDto;
 import com.example.newsfeedproject.dto.friend.FriendListResponseDto;
+import com.example.newsfeedproject.dto.friend.FriendRequestDto;
 import com.example.newsfeedproject.service.FriendService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -28,13 +28,14 @@ public class FriendController {
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-
-    @GetMapping
-    public ResponseEntity<List<FriendListResponseDto>> findFriendList(HttpServletRequest servletRequest) {
+    // friendRequest에 따른 친구 목록 조회 0은 요청한 목록 리스트, 1은 친구리스트
+    @GetMapping("/AllFriend")
+    public ResponseEntity<List<FriendListResponseDto>> findFriendListByFriendRequest(@RequestParam(value = "friendRequest", defaultValue = "0") int friendRequest,
+                                                                          HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
-        List<FriendListResponseDto> friendList = friendService.findFriendList(email);
+        List<FriendListResponseDto> friendList = friendService.findFriendListByFriendRequest(email, friendRequest);
 
         return new ResponseEntity<>(friendList, HttpStatus.OK);
     }

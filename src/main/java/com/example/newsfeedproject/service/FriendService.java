@@ -36,7 +36,7 @@ public class FriendService {
         // 요청 받은 유저, 요청한 유저 id 기준으로 조회
         List<Friend> findRelation = friendRepository.findFriendByToUserIdAndFromUserId(toUser, fromUser);
 
-        if (!findRelation.isEmpty()){
+        if (!findRelation.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "한번 더 친구 요청을 할 수 없습니다. ");
         }
 
@@ -46,18 +46,30 @@ public class FriendService {
         // 이미 있으면 친구로 등록
         // 없으면 요청만
         if (!alreadyRequest.isEmpty()) {
-            saveFriendRelation(fromUser,toUser);
+            saveFriendRelation(fromUser, toUser);
         } else {
             Friend friend = new Friend(fromUser, toUser);
             friendRepository.save(friend);
         }
     }
 
+    // 친구 목록 조회
     @Transactional
-    public List<FriendListResponseDto> findFriendList(String email) {
+    public List<FriendListResponseDto> findFriendListByFriendRequest(String email, int friendRequest) {
         User findUser = findUserByEmailOrElseThrow(email);
 
-        return friendRepository.findFriendList(findUser);
+        // friendRequest 와 로그인한 유저 값을 이용해 친구테이블에서 검색
+        List<Friend> FriendList = friendRepository.findFriendByFriendRequestAndToUserId(friendRequest, findUser);
+
+        // 가져오 친구리스트를 통해 아이디, 닉네임으로 변환 스트림
+        List<FriendListResponseDto> FriendList2 = FriendList.stream().map(
+                Friend -> {
+                    User user = Friend.getFromUserId();
+                    return new FriendListResponseDto(user.getId(), user.getName());
+                }
+        ).toList();
+
+        return FriendList2;
     }
 
     @Transactional
@@ -69,7 +81,7 @@ public class FriendService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 수락을 할 수 없습니다.");
         }
 
-        saveFriendRelation(fromUser,toUser);
+        saveFriendRelation(fromUser, toUser);
     }
 
     @Transactional
