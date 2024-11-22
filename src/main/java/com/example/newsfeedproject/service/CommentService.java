@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -44,32 +43,35 @@ public class CommentService {
         Comment comment = new Comment(findPost, findUser, requestDto.getWriteComment());
 
         Comment saveComment = commentRepository.save(comment);
-        return CommentResponseDto.fromEntity(saveComment);
+        return new CommentResponseDto(saveComment);
     }
 
+    @Transactional
     public List<CommentResponseDto> findAllComments(Long postId) {
-
         List<Comment> commentList = commentRepository.findCommentByPostId(postId);
-        List<CommentResponseDto> list = commentList.stream().map(Comment -> {
+        List<CommentResponseDto> transformDtoList = commentList.stream().map(Comment -> {
                     Post post = Comment.getPost();
                     User user = Comment.getUser();
                     return new CommentResponseDto(Comment.getId(), user.getId(), post.getId(), user.getName(), Comment.getWriteComment(), Comment.getLikeCount());
                 }
         ).toList();
-        return list;
+        return transformDtoList;
     }
 
     //댓글 수정
-
     @Transactional
-    public CommentUpdateResponseDto updateComment(Long commentId, CommentUpdateRequestDto commentUpdateRequestDto,
-                                                  String email) {
+    public CommentUpdateResponseDto updateComment(CommentUpdateRequestDto requestDto,Long postId, Long commentId, String email) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
-        Comment comment = findCommentById(commentId);
-//        comment.update(commentUpdateRequestDto.getWriteComment(), findUser);
 
-        return CommentUpdateResponseDto.fromEntity(commentRepository.save(comment));
+        Comment findComment = findCommentById(commentId);
+
+        // 수정하려는 유저가 게시물 주인 혹은 댓글의 주인인 경우에만 수정 가능
+        if (findUser.getId().equals(findComment.getUser().getId()) ||
+                findComment.getPost().getUser().getId().equals(findUser.getId())) {
+            return new CommentUpdateResponseDto(findUser, findComment,postId, requestDto);
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
     }
     //댓글 삭제
 
