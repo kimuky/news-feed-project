@@ -16,6 +16,10 @@ public class PostUpdateResponseDto {
 
     private String modifiedDate;
 
+    private String message;
+
+    private int likeCount;
+
     //Post Entity -> Dto 변환
     public static PostUpdateResponseDto fromEntity(Post post) {
         PostUpdateResponseDto dto = new PostUpdateResponseDto();
@@ -25,5 +29,9 @@ public class PostUpdateResponseDto {
         dto.createdDate = post.getCreatedAt().toString(); //작성일을 문자열로 변환
         dto.modifiedDate = post.getUpdatedAt().toString();
         return dto;
+    }
+
+    public void setMessage(String message){
+        this.message = message;
     }
 }

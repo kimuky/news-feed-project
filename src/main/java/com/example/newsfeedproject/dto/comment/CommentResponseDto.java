@@ -12,13 +12,17 @@ public class CommentResponseDto {
 
     private String writeComment;
 
+    private int likeCount;
+
+
     public CommentResponseDto() {
     }
 
-    public CommentResponseDto(Long id, String commentWriter, String writeComment) {
+    public CommentResponseDto(Long id, String commentWriter, String writeComment, int likeCount) {
         this.id = id;
         this.commentWriter = commentWriter;
         this.writeComment = writeComment;
+        this.likeCount = likeCount;
     }
 
     public static CommentResponseDto fromEntity(Comment comment) {
@@ -27,6 +31,7 @@ public class CommentResponseDto {
         dto.id = comment.getId();
         dto.writeComment = comment.getWriteComment();
         dto.commentWriter = comment.getUser().getName();
+        dto.likeCount = comment.getLikeCount();
 
         return dto;
     }
@@ -35,7 +40,8 @@ public class CommentResponseDto {
         return new CommentResponseDto(
                 comment.getId(),
                 comment.getUser().getName(),
-                comment.getWriteComment()
+                comment.getWriteComment(),
+                comment.getLikeCount()
         );
     }
 }

@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 public class PostResponseDto {
-
     private Long id;
 
     private String title;
@@ -16,6 +15,8 @@ public class PostResponseDto {
 
     private String createdDate; //작성일
 
+    private int likeCount;
+
     //Post Entity -> Dto 변환
     public static PostResponseDto fromEntity(Post post) {
         PostResponseDto dto = new PostResponseDto();
@@ -24,6 +25,8 @@ public class PostResponseDto {
         dto.content = post.getContent();
         dto.writerName = post.getUser().getName(); //UserEntity에서 이름 가져오기
         dto.createdDate = post.getCreatedAt().toString(); //작성일을 문자열로 변환
+        dto.likeCount = post.getLikeCount();
+
         return dto;
     }
 }
