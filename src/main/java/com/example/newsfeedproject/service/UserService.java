@@ -3,6 +3,7 @@ package com.example.newsfeedproject.service;
 import com.example.newsfeedproject.config.PasswordEncoder;
 import com.example.newsfeedproject.dto.user.*;
 import com.example.newsfeedproject.entity.User;
+import com.example.newsfeedproject.repository.FriendRepository;
 import com.example.newsfeedproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FriendRepository friendRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -97,6 +99,8 @@ public class UserService {
 
         // 유저 소프트딜리트
         findUser.softDelete();
+
+        friendRepository.deleteByFromUserIdOrToUserId(findUser, findUser);
     }
 
     private User findUserByEmailOrElseThrow(String email) {
