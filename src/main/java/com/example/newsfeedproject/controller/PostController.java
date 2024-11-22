@@ -8,7 +8,7 @@ import com.example.newsfeedproject.dto.post.like.PostLikeResponseDto;
 import com.example.newsfeedproject.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +33,7 @@ public class PostController {
 
     //작성
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postRequestDto,
+    public ResponseEntity<PostResponseDto> createPost(@Valid @RequestBody PostRequestDto postRequestDto,
                                                       HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
@@ -46,7 +46,7 @@ public class PostController {
 
     //수정
     @PatchMapping("/{id}")
-    public ResponseEntity<PostUpdateResponseDto> updatePost(@RequestBody PostUpdateRequestDto postUpdateRequestDto,
+    public ResponseEntity<PostUpdateResponseDto> updatePost(@Valid @RequestBody PostUpdateRequestDto postUpdateRequestDto,
                                                             @PathVariable Long id,
                                                             HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
