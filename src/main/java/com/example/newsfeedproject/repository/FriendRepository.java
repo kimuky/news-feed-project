@@ -17,4 +17,6 @@ public interface FriendRepository extends JpaRepository<Friend, FriendId> {
 
     // 친구 상태코드에 따른 검색
     List<Friend> findFriendByFriendRequestAndToUserId(int i, User findUser);
+
+    void deleteByFromUserIdOrToUserId(User fromUser, User toUser);
 }
