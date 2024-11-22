@@ -58,7 +58,7 @@ public class UserController {
     }
 
     // 회원 탈퇴
-    @PutMapping("/{userId}")
+    @PatchMapping("/{userId}")
     public ResponseEntity<Void> deleteProfile(@PathVariable Long userId,
                                               @RequestBody PasswordUserRequestDto requestDto,
                                               HttpServletRequest servletRequest) {

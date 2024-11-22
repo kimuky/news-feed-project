@@ -25,7 +25,6 @@ public class UserService {
     @Transactional
     public RegisterUserResponseDto registerUser(RegisterUserRequestDto requestDto) {
         // 비밀번호 암호화
-        User user = new User(requestDto, passwordEncoder.encode(requestDto.getPassword()));
         Optional<User> findUser = userRepository.findUserByEmail(requestDto.getEmail());
 
         // 아메일이 중복일 시, 중복 예외 처리
@@ -33,6 +32,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "중복된 아이디입니다.");
         }
 
+        User user = new User(requestDto, passwordEncoder.encode(requestDto.getPassword()));
         User saveUser = userRepository.save(user);
 
         return new RegisterUserResponseDto(saveUser);
