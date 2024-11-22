@@ -2,20 +2,26 @@ package com.example.newsfeedproject.controller;
 
 import com.example.newsfeedproject.dto.comment.CommentRequestDto;
 import com.example.newsfeedproject.dto.comment.CommentResponseDto;
+import com.example.newsfeedproject.dto.comment.CommentUpdateRequestDto;
+import com.example.newsfeedproject.dto.comment.CommentUpdateResponseDto;
+import com.example.newsfeedproject.dto.post.PostUpdateRequestDto;
+import com.example.newsfeedproject.entity.Post;
 import com.example.newsfeedproject.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/posts/{postId}/comment")
+@RequestMapping("/posts/{postId}/comments")
 public class CommentController {
 
     private final CommentService commentService;
@@ -29,4 +35,32 @@ public class CommentController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(commentService.createComment(commentRequestDto, email));
     }
+
+    //댓글 조회
+    @GetMapping
+    public ResponseEntity<List<CommentResponseDto>> findAllComments() {
+        return ResponseEntity.ok().body(commentService.findAllComments());
+    }
+
+    //댓글 수정
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<CommentUpdateResponseDto> updateComment(@RequestBody CommentUpdateRequestDto commentUpdateRequestDto,
+                                                                  @PathVariable Long commentId, HttpServletRequest servletRequest) {
+        HttpSession session = servletRequest.getSession();
+        String email = String.valueOf(session.getAttribute("email"));
+
+        return ResponseEntity.ok().body(commentService.updateComment(commentId, commentUpdateRequestDto, email));
+    }
+
+    //댓글 삭제
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId, HttpServletRequest servletRequest) {
+        HttpSession session = servletRequest.getSession();
+        String email = String.valueOf(session.getAttribute("email"));
+        commentService.deleteComment(commentId, email);
+
+        return ResponseEntity.ok().body("삭제되었습니다.");
+    }
+
+
 }

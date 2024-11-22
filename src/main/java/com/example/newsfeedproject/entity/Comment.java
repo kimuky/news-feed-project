@@ -18,14 +18,15 @@ public class Comment extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String writeComment;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id")
-    private Post post;
-
     public Comment() {
     }
 
     public Comment(String writeComment, User user) {
+        this.writeComment = writeComment;
+        this.user = user;
+    }
+
+    public void update(String writeComment, User user) {
         this.writeComment = writeComment;
         this.user = user;
     }

@@ -12,6 +12,15 @@ public class CommentResponseDto {
 
     private String writeComment;
 
+    public CommentResponseDto() {
+    }
+
+    public CommentResponseDto(Long id, String commentWriter, String writeComment) {
+        this.id = id;
+        this.commentWriter = commentWriter;
+        this.writeComment = writeComment;
+    }
+
     public static CommentResponseDto fromEntity(Comment comment) {
         CommentResponseDto dto = new CommentResponseDto();
 
@@ -20,5 +29,13 @@ public class CommentResponseDto {
         dto.commentWriter = comment.getUser().getName();
 
         return dto;
+    }
+
+    public static CommentResponseDto toDto(Comment comment) {
+        return new CommentResponseDto(
+                comment.getId(),
+                comment.getUser().getName(),
+                comment.getWriteComment()
+        );
     }
 }
