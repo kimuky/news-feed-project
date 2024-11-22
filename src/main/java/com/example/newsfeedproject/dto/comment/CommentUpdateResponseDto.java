@@ -2,25 +2,38 @@ package com.example.newsfeedproject.dto.comment;
 
 
 import com.example.newsfeedproject.entity.Comment;
+import com.example.newsfeedproject.entity.User;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
 
 @Getter
 public class CommentUpdateResponseDto {
 
-    private long id;
+    private final Long id;
 
-    private String commentWriter;
+    private final Long userId;
 
-    private String writeComment;
+    private final Long postId;
 
-    public static CommentUpdateResponseDto fromEntity(Comment comment) {
-        CommentUpdateResponseDto dto = new CommentUpdateResponseDto();
+    private final String userName;
 
-        dto.id = comment.getId();
-        dto.commentWriter = comment.getUser().getName();
-        dto.writeComment = comment.getWriteComment();
+    private final String content;
 
-        return dto;
+    private final int likeCount;
+
+    private final LocalDateTime createdAt;
+
+    private final LocalDateTime updatedAt;
+
+    public CommentUpdateResponseDto(User findUser, Comment findComment,Long postId, CommentUpdateRequestDto requestDto) {
+        this.id = findComment.getId();
+        this.userId = findUser.getId();
+        this.postId = postId;
+        this.userName = findUser.getName();
+        this.content = requestDto.getWriteComment();
+        this.likeCount = findComment.getLikeCount();
+        this.createdAt = findComment.getCreatedAt();
+        this.updatedAt = LocalDateTime.now();
     }
-
 }

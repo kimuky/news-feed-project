@@ -1,9 +1,6 @@
 package com.example.newsfeedproject.service;
 
-import com.example.newsfeedproject.dto.comment.CommentRequestDto;
-import com.example.newsfeedproject.dto.comment.CommentResponseDto;
-import com.example.newsfeedproject.dto.comment.CommentUpdateRequestDto;
-import com.example.newsfeedproject.dto.comment.CommentUpdateResponseDto;
+import com.example.newsfeedproject.dto.comment.*;
 import com.example.newsfeedproject.dto.post.like.CommentLikeResponseDto;
 import com.example.newsfeedproject.entity.Comment;
 import com.example.newsfeedproject.entity.CommentLike;
@@ -20,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -44,41 +40,54 @@ public class CommentService {
         Comment comment = new Comment(findPost, findUser, requestDto.getWriteComment());
 
         Comment saveComment = commentRepository.save(comment);
-        return CommentResponseDto.fromEntity(saveComment);
+        return new CommentResponseDto(saveComment);
     }
 
-    public List<CommentResponseDto> findAllComments(Long postId) {
-
+    @Transactional
+    public List<CommentAllResponseDto> findAllComments(Long postId) {
         List<Comment> commentList = commentRepository.findCommentByPostId(postId);
-        List<CommentResponseDto> list = commentList.stream().map(Comment -> {
-                    Post post = Comment.getPost();
-                    User user = Comment.getUser();
-                    return new CommentResponseDto(Comment.getId(), user.getId(), post.getId(), user.getName(), Comment.getWriteComment(), Comment.getLikeCount());
-                }
+        List<CommentAllResponseDto> transformDtoList = commentList.stream().map(CommentAllResponseDto::new
         ).toList();
-        return list;
+        return transformDtoList;
     }
 
     //댓글 수정
-
     @Transactional
-    public CommentUpdateResponseDto updateComment(Long commentId, CommentUpdateRequestDto commentUpdateRequestDto,
-                                                  String email) {
+    public CommentUpdateResponseDto updateComment(CommentUpdateRequestDto requestDto, Long postId, Long commentId, String email) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
-        Comment comment = findCommentById(commentId);
-//        comment.update(commentUpdateRequestDto.getWriteComment(), findUser);
 
-        return CommentUpdateResponseDto.fromEntity(commentRepository.save(comment));
-    }
-    //댓글 삭제
+        Post findPost = postRepository.findById(postId).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없음"));
 
-    @Transactional
-    public void deleteComment(Long commentId, String email) {
-        User findUser = userRepository.findUserByEmail(email).orElseThrow(()
-                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
         Comment findComment = findCommentById(commentId);
-        commentRepository.deleteById(commentId);
+
+        // 수정하려는 유저가 게시물 주인 혹은 댓글의 주인인 경우에만 수정 가능
+        if (findUser.getId().equals(findComment.getUser().getId()) ||
+                findPost.getUser().getId().equals(findUser.getId())) {
+            return new CommentUpdateResponseDto(findUser, findComment, postId, requestDto);
+        }
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
+    }
+
+    //댓글 삭제
+    @Transactional
+    public void deleteComment(Long postId, Long commentId, String email) {
+        User findUser = userRepository.findUserByEmail(email).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
+
+        Post findPost = postRepository.findById(postId).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없음"));
+
+        Comment findComment = findCommentById(commentId);
+
+        if (findUser.getId().equals(findComment.getUser().getId()) ||
+                findPost.getUser().getId().equals(findUser.getId())) {
+            commentRepository.deleteById(commentId);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
+        }
     }
     //댓글 좋아요 누름
 
@@ -105,6 +114,7 @@ public class CommentService {
 
 
     }
+
     @Transactional
     public void deleteLike(Long commentId, String email) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
