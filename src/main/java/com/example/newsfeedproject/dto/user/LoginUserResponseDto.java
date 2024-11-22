@@ -5,7 +5,9 @@ import lombok.Getter;
 
 @Getter
 public class LoginUserResponseDto {
+
     private final Long id;
+
     private final String email;
 
     public LoginUserResponseDto(User user) {

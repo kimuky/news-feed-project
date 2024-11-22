@@ -70,9 +70,9 @@ public class PostController {
             )
             Pageable pageable,
             HttpSession session
-    ) {
-        validateSession(session);
 
+    ){
+        validateSession(session);
         Page<PostResponseDto> posts = postService.getAllPosts(pageable);
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
@@ -93,23 +93,18 @@ public class PostController {
         validateSession(session);
         Page<PostResponseDto> posts = postService.getPostsByUser(userId, pageable);
 
-        if (posts.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
     //단일 게시물 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postId, HttpSession session) {
+    public ResponseEntity<PostResponseDto> getPostById(
+            @PathVariable Long postId,
+            HttpSession session){
         validateSession(session);
-        try {
-            PostResponseDto post = postService.getPostById(postId);
-            return new ResponseEntity<>(post, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        PostResponseDto post = postService.getPostById(postId);
+      
+        return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
     //세션 검사
