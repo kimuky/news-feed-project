@@ -8,40 +8,36 @@ public class CommentResponseDto {
 
     private Long id;
 
-    private String commentWriter;
+    private Long userId;
 
-    private String writeComment;
+    private Long PostId;
+
+    private String userName;
+
+    private String content;
 
     private int likeCount;
-
 
     public CommentResponseDto() {
     }
 
-    public CommentResponseDto(Long id, String commentWriter, String writeComment, int likeCount) {
+    public CommentResponseDto(Long id, Long userId, Long PostId, String userName, String content, int likeCount) {
         this.id = id;
-        this.commentWriter = commentWriter;
-        this.writeComment = writeComment;
+        this.userId = userId;
+        this.PostId = PostId;
+        this.userName = userName;
+        this.content = content;
         this.likeCount = likeCount;
     }
-
     public static CommentResponseDto fromEntity(Comment comment) {
         CommentResponseDto dto = new CommentResponseDto();
 
         dto.id = comment.getId();
-        dto.writeComment = comment.getWriteComment();
-        dto.commentWriter = comment.getUser().getName();
+        dto.userId = comment.getUser().getId();
+        dto.PostId = comment.getPost().getId();
+        dto.userName = comment.getWriteComment();
         dto.likeCount = comment.getLikeCount();
 
         return dto;
-    }
-
-    public static CommentResponseDto toDto(Comment comment) {
-        return new CommentResponseDto(
-                comment.getId(),
-                comment.getUser().getName(),
-                comment.getWriteComment(),
-                comment.getLikeCount()
-        );
     }
 }

@@ -12,6 +12,10 @@ public class Comment extends BaseEntity {
     private long id;
 
     @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -24,12 +28,14 @@ public class Comment extends BaseEntity {
     public Comment() {
     }
 
-    public Comment(String writeComment, User user) {
-        this.writeComment = writeComment;
+    public Comment(Post post, User user, String writeComment) {
+        this.post = post;
         this.user = user;
+        this.writeComment = writeComment;
     }
 
-    public void update(String writeComment, User user) {
+    public void update(Post post, String writeComment, User user) {
+        this.post = post;
         this.writeComment = writeComment;
         this.user = user;
     }

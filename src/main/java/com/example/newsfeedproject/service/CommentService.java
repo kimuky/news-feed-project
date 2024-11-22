@@ -7,6 +7,7 @@ import com.example.newsfeedproject.dto.comment.CommentUpdateResponseDto;
 import com.example.newsfeedproject.dto.post.like.CommentLikeResponseDto;
 import com.example.newsfeedproject.entity.Comment;
 import com.example.newsfeedproject.entity.CommentLike;
+import com.example.newsfeedproject.entity.Post;
 import com.example.newsfeedproject.entity.User;
 import com.example.newsfeedproject.repository.CommentLikeRepository;
 import com.example.newsfeedproject.repository.CommentRepository;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -26,50 +28,51 @@ import java.util.List;
 public class CommentService {
 
     private final PostRepository postRepository;
-
     private final UserRepository userRepository;
-
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
 
     //댓글 작성
     @Transactional
-    public CommentResponseDto createComment(CommentRequestDto commentRequestDto, String email) {
+    public CommentResponseDto createComment(CommentRequestDto requestDto, String email, Long postId) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
-        Comment comment = new Comment(commentRequestDto.getWriteComment(), findUser);
+
+        Post findPost = postRepository.findById(postId).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없음"));
+
+        Comment comment = new Comment(findPost, findUser, requestDto.getWriteComment());
 
         Comment saveComment = commentRepository.save(comment);
         return CommentResponseDto.fromEntity(saveComment);
     }
 
-    private Comment findCommentById(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(()
-                -> new IllegalArgumentException("잘못된 댓글 id입니다."));
-    }
+    public List<CommentResponseDto> findAllComments(Long postId) {
 
-    public List<CommentResponseDto> findAllComments() {
-        List<Comment> comments = commentRepository.findAll();
-
-        return comments
-                .stream()
-                .map(CommentResponseDto::toDto)
-                .toList();
+        List<Comment> commentList = commentRepository.findCommentByPostId(postId);
+        List<CommentResponseDto> list = commentList.stream().map(Comment -> {
+                    Post post = Comment.getPost();
+                    User user = Comment.getUser();
+                    return new CommentResponseDto(Comment.getId(), user.getId(), post.getId(), user.getName(), Comment.getWriteComment(), Comment.getLikeCount());
+                }
+        ).toList();
+        return list;
     }
 
     //댓글 수정
+
     @Transactional
     public CommentUpdateResponseDto updateComment(Long commentId, CommentUpdateRequestDto commentUpdateRequestDto,
                                                   String email) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
         Comment comment = findCommentById(commentId);
-        comment.update(commentUpdateRequestDto.getWriteComment(), findUser);
+//        comment.update(commentUpdateRequestDto.getWriteComment(), findUser);
 
         return CommentUpdateResponseDto.fromEntity(commentRepository.save(comment));
     }
-
     //댓글 삭제
+
     @Transactional
     public void deleteComment(Long commentId, String email) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
@@ -77,8 +80,8 @@ public class CommentService {
         Comment findComment = findCommentById(commentId);
         commentRepository.deleteById(commentId);
     }
-
     //댓글 좋아요 누름
+
     @Transactional
     public CommentLikeResponseDto insertLike(Long commentId, String email) {
 
@@ -102,7 +105,6 @@ public class CommentService {
 
 
     }
-
     @Transactional
     public void deleteLike(Long commentId, String email) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
@@ -117,6 +119,11 @@ public class CommentService {
 
         commentLikeRepository.delete(commentLike);
         comment.decrementLikeCount();
+    }
+
+    private Comment findCommentById(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(()
+                -> new IllegalArgumentException("잘못된 댓글 id입니다."));
     }
 
 
