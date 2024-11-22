@@ -3,6 +3,8 @@ package com.example.newsfeedproject.dto.comment;
 import com.example.newsfeedproject.entity.Comment;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class CommentResponseDto {
 
@@ -18,6 +20,8 @@ public class CommentResponseDto {
 
     private int likeCount;
 
+    private LocalDateTime createdAt;
+
     public CommentResponseDto() {
     }
 
@@ -28,16 +32,16 @@ public class CommentResponseDto {
         this.userName = userName;
         this.content = content;
         this.likeCount = likeCount;
+        this.createdAt = LocalDateTime.now();
     }
-    public static CommentResponseDto fromEntity(Comment comment) {
-        CommentResponseDto dto = new CommentResponseDto();
 
-        dto.id = comment.getId();
-        dto.userId = comment.getUser().getId();
-        dto.PostId = comment.getPost().getId();
-        dto.userName = comment.getWriteComment();
-        dto.likeCount = comment.getLikeCount();
-
-        return dto;
+    public CommentResponseDto(Comment findComment) {
+        this.id = findComment.getId();
+        this.userId = findComment.getUser().getId();
+        this.PostId = findComment.getPost().getId();
+        this.userName = findComment.getUser().getName();
+        this.content = findComment.getWriteComment();
+        this.likeCount = findComment.getLikeCount();
+        this.createdAt = LocalDateTime.now();
     }
 }
