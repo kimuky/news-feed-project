@@ -29,7 +29,7 @@ public class FriendController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
     // friendRequest에 따른 친구 목록 조회 0은 요청한 목록 리스트, 1은 친구리스트
-    @GetMapping("/AllFriend")
+    @GetMapping
     public ResponseEntity<List<FriendListResponseDto>> findFriendListByFriendRequest(@RequestParam(value = "friendRequest", defaultValue = "0") int friendRequest,
                                                                           HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
