@@ -20,10 +20,22 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public void setUser (User user ) {
+    public void setUser(User user) {
         this.user = user;
     }
 
     public Post() {
+    }
+
+    public Post(User user, String title, String content) {
+        this.title = title;
+        this.content = content;
+        this.user = user;
+    }
+
+    public void update(User user, String title, String content) {
+        this.user = user;
+        this.title = title;
+        this.content = content;
     }
 }

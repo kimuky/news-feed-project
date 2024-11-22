@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@Entity
+@Entity(name = "user")
 public class User extends BaseEntity {
 
     @Id
@@ -57,5 +57,10 @@ public class User extends BaseEntity {
 
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    public void softDelete(){
+        this.activated = 0;
+        this.deletedAt = LocalDateTime.now();
     }
 }

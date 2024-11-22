@@ -17,6 +17,7 @@ public class UserController {
 
     private final UserService userService;
 
+    // 회원 가입
     @PostMapping("/signup")
     public ResponseEntity<RegisterUserResponseDto> registerUser(@Valid @RequestBody RegisterUserRequestDto requestDto) {
         RegisterUserResponseDto responseDto = userService.registerUser(requestDto);
@@ -24,6 +25,7 @@ public class UserController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
+    // 로그인
     @PostMapping("/login")
     public ResponseEntity<LoginUserResponseDto> login(@Valid @RequestBody LoginUserRequestDto requestDto, HttpServletRequest servletRequest) {
         LoginUserResponseDto responseDto = userService.login(requestDto);
@@ -34,17 +36,19 @@ public class UserController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    // 유저프로필 조회
     @GetMapping("/{userId}")
     public ResponseEntity<ProfileUserResponseDto> findByUserId(@PathVariable Long userId) {
-
         ProfileUserResponseDto responseDto = userService.findByUserId(userId);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    // 유저프로필 수정
     @PatchMapping("/{userId}")
-    public ResponseEntity<ProfileUserResponseDto> updateProfile(@PathVariable Long userId, @RequestBody UpdateUserRequestDto requestDto, HttpServletRequest servletRequest) {
-
+    public ResponseEntity<ProfileUserResponseDto> updateProfile(@PathVariable Long userId,
+                                                                @RequestBody UpdateUserRequestDto requestDto,
+                                                                HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
@@ -53,13 +57,15 @@ public class UserController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteProfile(@PathVariable Long userId, @RequestBody PasswordUserRequestDto requestDto, HttpServletRequest servletRequest) {
-
+    // 회원 탈퇴
+    @PutMapping("/{userId}")
+    public ResponseEntity<Void> deleteProfile(@PathVariable Long userId,
+                                              @RequestBody PasswordUserRequestDto requestDto,
+                                              HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
-        userService.deleteProfile(userId, requestDto, email);
+        userService.softDeleteProfile(userId, requestDto, email);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
