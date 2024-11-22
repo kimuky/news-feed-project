@@ -45,7 +45,7 @@ public class UserController {
     }
 
     // 유저프로필 수정
-    @PatchMapping("/{userId}")
+    @PutMapping("/{userId}")
     public ResponseEntity<ProfileUserResponseDto> updateProfile(@PathVariable Long userId,
                                                                 @RequestBody UpdateUserRequestDto requestDto,
                                                                 HttpServletRequest servletRequest) {
