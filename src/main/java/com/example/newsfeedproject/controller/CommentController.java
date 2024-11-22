@@ -5,6 +5,7 @@ import com.example.newsfeedproject.dto.comment.CommentResponseDto;
 import com.example.newsfeedproject.dto.comment.CommentUpdateRequestDto;
 import com.example.newsfeedproject.dto.comment.CommentUpdateResponseDto;
 import com.example.newsfeedproject.dto.post.like.CommentLikeResponseDto;
+import com.example.newsfeedproject.entity.Comment;
 import com.example.newsfeedproject.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -26,17 +27,23 @@ public class CommentController {
     //댓글 작성
     @PostMapping
     public ResponseEntity<CommentResponseDto> createComment(@Valid @RequestBody CommentRequestDto commentRequestDto,
+                                                            @PathVariable Long postId,
                                                             HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = (String) session.getAttribute("email");
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.createComment(commentRequestDto, email));
+        CommentResponseDto responseDto = commentService.createComment(commentRequestDto, email, postId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     //댓글 조회
     @GetMapping
-    public ResponseEntity<List<CommentResponseDto>> findAllComments() {
-        return ResponseEntity.ok().body(commentService.findAllComments());
+    public ResponseEntity<List<CommentResponseDto>> findAllComments(@PathVariable Long postId) {
+
+        List<CommentResponseDto> allComments = commentService.findAllComments(postId);
+
+        return ResponseEntity.ok().body(allComments);
     }
 
     //댓글 수정
