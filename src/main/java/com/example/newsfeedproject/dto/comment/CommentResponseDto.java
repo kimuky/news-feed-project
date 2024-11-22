@@ -32,7 +32,6 @@ public class CommentResponseDto {
         this.userName = userName;
         this.content = content;
         this.likeCount = likeCount;
-        this.createdAt = LocalDateTime.now();
     }
 
     public CommentResponseDto(Comment findComment) {

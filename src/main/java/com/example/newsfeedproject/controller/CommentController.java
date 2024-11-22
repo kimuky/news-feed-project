@@ -1,9 +1,6 @@
 package com.example.newsfeedproject.controller;
 
-import com.example.newsfeedproject.dto.comment.CommentRequestDto;
-import com.example.newsfeedproject.dto.comment.CommentResponseDto;
-import com.example.newsfeedproject.dto.comment.CommentUpdateRequestDto;
-import com.example.newsfeedproject.dto.comment.CommentUpdateResponseDto;
+import com.example.newsfeedproject.dto.comment.*;
 import com.example.newsfeedproject.dto.post.like.CommentLikeResponseDto;
 import com.example.newsfeedproject.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,9 +35,9 @@ public class CommentController {
 
     //특정 게시물에 대한 댓글 리스트 조회
     @GetMapping
-    public ResponseEntity<List<CommentResponseDto>> findAllComments(@PathVariable Long postId) {
+    public ResponseEntity<List<CommentAllResponseDto>> findAllComments(@PathVariable Long postId) {
 
-        List<CommentResponseDto> allComments = commentService.findAllComments(postId);
+        List<CommentAllResponseDto> allComments = commentService.findAllComments(postId);
 
         return ResponseEntity.ok().body(allComments);
     }
@@ -59,10 +56,12 @@ public class CommentController {
 
     //댓글 삭제
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<String> deleteComment(@PathVariable Long commentId, HttpServletRequest servletRequest) {
+    public ResponseEntity<String> deleteComment(@PathVariable Long postId,
+                                                @PathVariable Long commentId,
+                                                HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
-        commentService.deleteComment(commentId, email);
+        commentService.deleteComment(postId, commentId, email);
 
         return ResponseEntity.ok().body("삭제되었습니다.");
     }
