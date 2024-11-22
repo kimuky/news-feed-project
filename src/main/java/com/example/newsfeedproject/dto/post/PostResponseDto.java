@@ -6,16 +6,20 @@ import lombok.Getter;
 @Getter
 public class PostResponseDto {
     private Long id;
+
     private String title;
+
     private String content;
+
     private String writerName; //작성자 이름
+
     private String createdDate; //작성일
+
     private int likeCount;
 
     //Post Entity -> Dto 변환
-    public static PostResponseDto fromEntity(Post post){
+    public static PostResponseDto fromEntity(Post post) {
         PostResponseDto dto = new PostResponseDto();
-
         dto.id = post.getId();
         dto.title = post.getTitle();
         dto.content = post.getContent();

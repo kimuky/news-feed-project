@@ -17,29 +17,43 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
 
+    //전체 게시물 조회
     public Page<PostResponseDto> getAllPosts(Pageable pageable) {
-        return postRepository.findAll(pageable)
-                .map(PostResponseDto::fromEntity);
+        Page<Post> posts = postRepository.findAll(pageable);
+
+        if(posts.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"게시물이 존재하지 않습니다.");
+        }
+        return posts.map(PostResponseDto::fromEntity);
     }
 
+    //특정 사용자의 게시물 조회
     public Page<PostResponseDto> getPostsByUser(Long userId, Pageable pageable) {
-        return postRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable)
-                .map(PostResponseDto::fromEntity);
+        Page<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(userId,pageable);
+
+        if(posts.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"해당 사용자의 게시물이 존재하지 않습니다.");
+        }
+        return posts.map(PostResponseDto::fromEntity);
     }
 
+    //단일 게시물 조회
     public PostResponseDto getPostById(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"게시물을 찾을 수 없습니다."));
+
         return PostResponseDto.fromEntity(post);
     }
 
@@ -71,7 +85,7 @@ public class PostService {
     }
 
     private Post findPostById(Long postId) {
-        return postRepository.findById(postId).orElseThrow(()->new IllegalArgumentException("잘못된 게시물 id 입니다"));
+        return postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("잘못된 게시물 id 입니다"));
     }
 
     //게시물 작성자 확인 로직
