@@ -66,7 +66,7 @@ public class UserController {
         String email = String.valueOf(session.getAttribute("email"));
 
         userService.softDeleteProfile(userId, requestDto, email);
-
+        session.removeAttribute(email);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
