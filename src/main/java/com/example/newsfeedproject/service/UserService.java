@@ -41,6 +41,10 @@ public class UserService {
     public LoginUserResponseDto login(LoginUserRequestDto requestDto) {
         User findUser = findUserByEmailOrElseThrow(requestDto.getEmail());
 
+        if (findUser.getActivated() == 0) {
+            throw  new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
         // 패스워드가 일치하지 않을 시, 예외처리
         if (!passwordEncoder.matches(requestDto.getPassword(), findUser.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 틀림");
