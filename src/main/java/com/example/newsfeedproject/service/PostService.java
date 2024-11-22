@@ -14,11 +14,15 @@ import com.example.newsfeedproject.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +33,20 @@ public class PostService {
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
 
+    //정렬 기준 관리
+    //1순위 : 수정일 기준 최신순
+    //2순위 : 좋아요 기준 최신순
+    public Sort getDefaultSort(){
+        return Sort.by(
+                Sort.Order.desc("updatedAt"),
+                Sort.Order.desc("likeCount")
+        );
+    }
+
     //전체 게시물 조회
     public Page<PostResponseDto> getAllPosts(Pageable pageable) {
-        Page<Post> posts = postRepository.findAll(pageable);
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(),pageable.getPageSize(),getDefaultSort());
+        Page<Post> posts = postRepository.findAll(sortedPageable);
 
         if(posts.isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"게시물이 존재하지 않습니다.");
@@ -39,9 +54,21 @@ public class PostService {
         return posts.map(PostResponseDto::fromEntity);
     }
 
+    //기간별 게시물 조회
+    public Page<PostResponseDto> getPostsByPeriod(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable){
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(),pageable.getPageSize(),getDefaultSort());
+        Page<Post> posts = postRepository.findByCreatedAtBetween(startDate,endDate,sortedPageable);
+
+        if(posts.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"해당 기간의 게시물이 존재하지 않습니다.");
+        }
+        return posts.map(PostResponseDto::fromEntity);
+    }
+
     //특정 사용자의 게시물 조회
     public Page<PostResponseDto> getPostsByUser(Long userId, Pageable pageable) {
-        Page<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(userId,pageable);
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(),pageable.getPageSize(),getDefaultSort());
+        Page<Post> posts = postRepository.findByUserId(userId,sortedPageable);
 
         if(posts.isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"해당 사용자의 게시물이 존재하지 않습니다.");
