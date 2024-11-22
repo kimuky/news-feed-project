@@ -5,6 +5,7 @@ import com.example.newsfeedproject.dto.friend.FriendRequestDto;
 import com.example.newsfeedproject.service.FriendService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class FriendController {
 
     // 친구 요청
     @PostMapping
-    public ResponseEntity<Void> requestFriend(@RequestBody FriendRequestDto requestDto, HttpServletRequest servletRequest) {
+    public ResponseEntity<Void> requestFriend(@Valid @RequestBody FriendRequestDto requestDto, HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
