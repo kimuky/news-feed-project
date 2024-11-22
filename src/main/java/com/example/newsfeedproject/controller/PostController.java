@@ -29,7 +29,6 @@ public class PostController {
     private final PostService postService;
 
 
-
     //작성
     @PostMapping
     public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postRequestDto, HttpServletRequest servletRequest) {
@@ -71,6 +70,7 @@ public class PostController {
             )
             Pageable pageable,
             HttpSession session
+
     ){
         validateSession(session);
         Page<PostResponseDto> posts = postService.getAllPosts(pageable);
@@ -89,9 +89,10 @@ public class PostController {
             )
             Pageable pageable,
             HttpSession session
-    ){
+    ) {
         validateSession(session);
         Page<PostResponseDto> posts = postService.getPostsByUser(userId, pageable);
+
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
@@ -102,12 +103,13 @@ public class PostController {
             HttpSession session){
         validateSession(session);
         PostResponseDto post = postService.getPostById(postId);
+      
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
     //세션 검사
-    private void validateSession(HttpSession session){
-        if(session == null || session.getAttribute("email") == null){
+    private void validateSession(HttpSession session) {
+        if (session == null || session.getAttribute("email") == null) {
             throw new IllegalStateException("로그인을 해주세요.");
         }
     }

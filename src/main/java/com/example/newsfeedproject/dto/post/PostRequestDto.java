@@ -7,7 +7,9 @@ import lombok.Getter;
 public class PostRequestDto {
 
     private final Long userId;
+
     private final String title;
+
     private final String content;
 
     public PostRequestDto(Long userId, String title, String content) {
