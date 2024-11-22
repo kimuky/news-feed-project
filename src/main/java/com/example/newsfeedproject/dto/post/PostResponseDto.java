@@ -5,10 +5,15 @@ import lombok.Getter;
 
 @Getter
 public class PostResponseDto {
+
     private Long id;
+
     private String title;
+
     private String content;
+
     private String writerName; //작성자 이름
+
     private String createdDate; //작성일
 
     //Post Entity -> Dto 변환
