@@ -81,6 +81,11 @@ public class UserService {
         }
 
         if (requestDto.getPassword() != null) {
+
+            if (passwordEncoder.matches(requestDto.getPassword(), findUser.getPassword())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "동일한 패스워드 입니다.");
+            }
+
             if(!Pattern.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$", requestDto.getPassword())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "영어, 숫자, 특수문자 포함 8~20글자까지 입력해주세요");
             }
