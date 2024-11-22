@@ -9,6 +9,7 @@ import com.example.newsfeedproject.entity.Post;
 import com.example.newsfeedproject.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.query.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +29,7 @@ public class CommentController {
 
     //댓글 작성
     @PostMapping
-    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto commentRequestDto,
+    public ResponseEntity<CommentResponseDto> createComment(@Valid @RequestBody CommentRequestDto commentRequestDto,
                                                             HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = (String) session.getAttribute("email");
