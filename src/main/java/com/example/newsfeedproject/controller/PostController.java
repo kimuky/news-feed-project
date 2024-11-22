@@ -23,6 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/posts")
@@ -70,22 +73,63 @@ public class PostController {
     }
 
 
-    //전체 게시물 조회
+//    //전체 게시물 조회(작성일 기준 최신순)
+//    @GetMapping
+//    public ResponseEntity<Page<PostResponseDto>> getAllPosts(
+//            @PageableDefault(
+//                    size = 10,
+//                    page = 0,
+//                    sort = "createdAt",
+//                    direction = Sort.Direction.DESC
+//            )
+//            Pageable pageable,
+//            HttpSession session
+//
+//    ){
+//        validateSession(session);
+//        Page<PostResponseDto> posts = postService.getAllPosts(pageable);
+//        return new ResponseEntity<>(posts, HttpStatus.OK);
+//    }
+
+    //전체 게시물 조회(수정일 기준 최신순)
     @GetMapping
     public ResponseEntity<Page<PostResponseDto>> getAllPosts(
             @PageableDefault(
                     size = 10,
                     page = 0,
-                    sort = "createdAt",
+                    sort = "updatedAt",
                     direction = Sort.Direction.DESC
             )
             Pageable pageable,
-            HttpSession session
-
-    ){
+            HttpSession session){
         validateSession(session);
         Page<PostResponseDto> posts = postService.getAllPosts(pageable);
         return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
+    //기간별 게시물 검색 후 조회
+    @GetMapping("/search")
+    public ResponseEntity<Page<PostResponseDto>> getPostsByPeriod(
+            @RequestParam String startDate,
+            @RequestParam String endDate,
+            @PageableDefault(
+                    size = 10,
+                    page = 0,
+                    sort = "updatedAt",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable,
+            HttpSession session){
+        validateSession(session);
+
+        LocalDate startLocalDate = LocalDate.parse(startDate);
+        LocalDate endLocalDate = LocalDate.parse(endDate);
+
+        LocalDateTime start = startLocalDate.atStartOfDay();
+        LocalDateTime end = endLocalDate.atTime(23,59,59);
+
+        Page<PostResponseDto> posts = postService.getPostsByPeriod(start,end,pageable);
+        return new ResponseEntity<>(posts,HttpStatus.OK);
     }
 
     //특정 사용자의 게시물 조회
@@ -95,12 +139,11 @@ public class PostController {
             @PageableDefault(
                     size = 10,
                     page = 0,
-                    sort = "createdAt",
+                    sort = "updatedAt",
                     direction = Sort.Direction.DESC
             )
             Pageable pageable,
-            HttpSession session
-    ) {
+            HttpSession session) {
         validateSession(session);
         Page<PostResponseDto> posts = postService.getPostsByUser(userId, pageable);
 
