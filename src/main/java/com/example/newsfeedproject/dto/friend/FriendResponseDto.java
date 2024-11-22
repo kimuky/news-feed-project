@@ -13,6 +13,7 @@ public class FriendResponseDto {
         this.id = id;
         this.name = name;
     }
+
     public static FriendResponseDto toDto (FriendResponseDto testDto) {
         return new FriendResponseDto(testDto.getId(), testDto.getName());
     }

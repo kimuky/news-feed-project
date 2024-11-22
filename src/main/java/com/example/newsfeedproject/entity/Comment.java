@@ -18,6 +18,9 @@ public class Comment extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String writeComment;
 
+    @Column(nullable = false)
+    private int likeCount = 0;
+
     public Comment() {
     }
 
@@ -29,5 +32,13 @@ public class Comment extends BaseEntity {
     public void update(String writeComment, User user) {
         this.writeComment = writeComment;
         this.user = user;
+    }
+
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        this.likeCount--;
     }
 }
