@@ -62,19 +62,22 @@ public class FriendService {
         List<Friend> FriendList = friendRepository.findFriendByFriendRequestAndToUserId(friendRequest, findUser);
 
         // 가져오 친구리스트를 통해 아이디, 닉네임으로 변환 스트림
-        List<FriendListResponseDto> FriendList2 = FriendList.stream().map(
+        List<FriendListResponseDto> changeResponseList = FriendList.stream().map(
                 Friend -> {
                     User user = Friend.getFromUserId();
                     return new FriendListResponseDto(user.getId(), user.getName());
                 }
         ).toList();
 
-        return FriendList2;
+        return changeResponseList;
     }
 
     @Transactional
     public void acceptFriendRequest(String email, Long friendId) {
+        // 로그인 한 사용자
         User fromUser = findUserByEmailOrElseThrow(email);
+
+        // 친구 요청 받은 사용자
         User toUser = findByIdOrElseThrow(friendId);
 
         if (fromUser.getId().equals(toUser.getId())) {
@@ -96,6 +99,7 @@ public class FriendService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 거절을 할 수 없습니다.");
         }
 
+        // 레코드 삭제
         friendRepository.deleteByFromUserIdAndToUserId(fromUser, toUser);
         friendRepository.deleteByFromUserIdAndToUserId(toUser, fromUser);
     }
