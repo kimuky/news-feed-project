@@ -8,6 +8,7 @@ import com.example.newsfeedproject.dto.post.like.CommentLikeResponseDto;
 import com.example.newsfeedproject.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class CommentController {
 
     //댓글 작성
     @PostMapping
-    public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto commentRequestDto,
+    public ResponseEntity<CommentResponseDto> createComment(@Valid @RequestBody CommentRequestDto commentRequestDto,
                                                             HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = (String) session.getAttribute("email");
@@ -40,7 +41,7 @@ public class CommentController {
 
     //댓글 수정
     @PatchMapping("/{commentId}")
-    public ResponseEntity<CommentUpdateResponseDto> updateComment(@RequestBody CommentUpdateRequestDto commentUpdateRequestDto,
+    public ResponseEntity<CommentUpdateResponseDto> updateComment(@Valid @RequestBody CommentUpdateRequestDto commentUpdateRequestDto,
                                                                   @PathVariable Long commentId, HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
