@@ -53,7 +53,7 @@ public class CommentService {
 
     //댓글 수정
     @Transactional
-    public CommentUpdateResponseDto updateComment(CommentUpdateRequestDto requestDto, Long postId, Long commentId, String email) {
+    public CommentUpdateResponseDto updateComment(CommentRequestDto requestDto, Long postId, Long commentId, String email) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
 
@@ -61,6 +61,10 @@ public class CommentService {
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없음"));
 
         Comment findComment = findCommentById(commentId);
+
+        if (findComment == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없음");
+        }
 
         // 수정하려는 유저가 게시물 주인 혹은 댓글의 주인인 경우에만 수정 가능
         if (findUser.getId().equals(findComment.getUser().getId()) ||
@@ -82,6 +86,10 @@ public class CommentService {
 
         Comment findComment = findCommentById(commentId);
 
+        if (findComment == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없음");
+        }
+
         if (findUser.getId().equals(findComment.getUser().getId()) ||
                 findPost.getUser().getId().equals(findUser.getId())) {
             commentRepository.deleteById(commentId);
@@ -89,8 +97,8 @@ public class CommentService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
         }
     }
-    //댓글 좋아요 누름
 
+    //댓글 좋아요 누름
     @Transactional
     public CommentLikeResponseDto insertLike(Long commentId, String email) {
 
