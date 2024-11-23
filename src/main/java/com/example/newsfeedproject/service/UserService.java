@@ -108,11 +108,6 @@ public class UserService {
         friendRepository.deleteByFromUserIdOrToUserId(findUser, findUser);
     }
 
-    private User findUserByEmailOrElseThrow(String email) {
-        return userRepository.findUserByEmail(email).orElseThrow(()
-                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
-    }
-
     private User findByUserIdOrElseThrow(Long id) {
         return userRepository.findById(id).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "아이디를 찾을 수 없음"));
