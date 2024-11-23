@@ -13,9 +13,9 @@ public class FriendId implements Serializable {
 
     private Long toUserId;
 
-    public FriendId(Long id, Long id1) {
-        this.fromUserId = id;
-        this.toUserId = id1;
+    public FriendId(Long fromUserId, Long toUserId) {
+        this.fromUserId = fromUserId;
+        this.toUserId = toUserId;
     }
 
     public FriendId() {
