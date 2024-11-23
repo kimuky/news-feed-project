@@ -1,11 +1,15 @@
 package com.example.newsfeedproject.service;
 
+import com.example.newsfeedproject.config.PasswordEncoder;
+import com.example.newsfeedproject.dto.friend.FriendDeleteRequestDto;
 import com.example.newsfeedproject.dto.friend.FriendListResponseDto;
+import com.example.newsfeedproject.dto.friend.FriendPasswordRequestDto;
 import com.example.newsfeedproject.dto.friend.FriendRequestDto;
 import com.example.newsfeedproject.entity.Friend;
 import com.example.newsfeedproject.entity.User;
 import com.example.newsfeedproject.repository.FriendRepository;
 import com.example.newsfeedproject.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,13 +24,14 @@ public class FriendService {
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void requestFriend(FriendRequestDto requestDto, String email) {
         // 친구 요청한 유저
         User fromUser = findUserByEmailOrElseThrow(email);
         // 요청 받은 유저
-        User toUser = findUserByEmailOrElseThrow(requestDto.getUserEmail());
+        User toUser = findUserByEmailOrElseThrow(requestDto.getEmail());
 
         // 자기 자신에게 친구 요청 시, 예외 처리
         if (fromUser.getId().equals(toUser.getId())) {
@@ -80,6 +85,10 @@ public class FriendService {
         // 친구 요청 받은 사용자
         User toUser = findByIdOrElseThrow(friendId);
 
+        if (fromUser.getId().equals(toUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 수락을 할 수 없습니다.");
+        }
+
         // 친구 요청이 있는 경우
         List<Friend> findRequest = friendRepository.findFriendByToUserIdAndFromUserId(fromUser, toUser);
 
@@ -96,28 +105,67 @@ public class FriendService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 친구 상태");
         }
 
-        if (fromUser.getId().equals(toUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 수락을 할 수 없습니다.");
-        }
-
         saveFriendRelation(fromUser, toUser);
     }
 
     @Transactional
-    public void rejectFriendRequest(String email, Long friendId) {
-        // 로그인 한 사용자
-        User toUser = findUserByEmailOrElseThrow(email);
+    public void removeFriendRequest(FriendDeleteRequestDto requestDto, String email) {
+        // 친구 삭제를 원하는 사용자
+        User fromUser = findUserByEmailOrElseThrow(email);
 
-        // 친구요청한 사용자
-        User fromUser = findByIdOrElseThrow(friendId);
-
-        if (fromUser.getId().equals(toUser.getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 거절을 할 수 없습니다.");
+        if(!passwordEncoder.matches(requestDto.getPassword(), fromUser.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드 틀림");
         }
 
-        // 레코드 삭제
-        friendRepository.deleteByFromUserIdAndToUserId(fromUser, toUser);
-        friendRepository.deleteByFromUserIdAndToUserId(toUser, fromUser);
+        // 친구 삭제할 사용자
+        User toUser = findUserByEmailOrElseThrow(requestDto.getEmail());
+
+        if (fromUser.getId().equals(toUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 삭제를 할 수 없습니다.");
+        }
+
+        // 친구 관계인지 확인
+        List<Friend> toUserFromUserList
+                = friendRepository.findFriendByToUserIdAndFromUserIdAndFriendRequest(toUser, fromUser, 1);
+        List<Friend> fromUserToUserList
+                = friendRepository.findFriendByToUserIdAndFromUserIdAndFriendRequest(fromUser, toUser, 1);
+
+        // 두 레코드가 비어있으면 친구관계가 아니기에 예외처리
+        if (toUserFromUserList.isEmpty() || fromUserToUserList.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아직 친구관계가 아닙니다.");
+        } else {
+            // 레코드 삭제
+            friendRepository.deleteByFromUserIdAndToUserIdAndFriendRequest(fromUser, toUser, 1);
+            friendRepository.deleteByFromUserIdAndToUserIdAndFriendRequest(toUser, fromUser, 1);
+        }
+    }
+
+    @Transactional
+    public void rejectFriendRequest(@Valid FriendPasswordRequestDto requestDto, String email, Long friendId) {
+        // 친구 거절을 원하는 사용자
+        User fromUser = findUserByEmailOrElseThrow(email);
+
+        if(!passwordEncoder.matches(requestDto.getPassword(), fromUser.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "패스워드 틀림");
+        }
+
+        // 친구 거절 할 사용자
+        User toUser = findByIdOrElseThrow(friendId);
+
+        if (fromUser.getId().equals(toUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 삭제를 할 수 없습니다.");
+        }
+
+        // 친구 요청 찾기
+        List<Friend> findRequest
+                = friendRepository.findFriendByToUserIdAndFromUserIdAndFriendRequest(fromUser, toUser, 0);
+
+        if (findRequest.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "친구 요청이 오지 않았습니다.");
+        }
+
+        // 친구 거절
+        friendRepository.deleteByFromUserIdAndToUserIdAndFriendRequest(toUser, fromUser, 0);
     }
 
     private void saveFriendRelation(User fromUser, User toUser) {
