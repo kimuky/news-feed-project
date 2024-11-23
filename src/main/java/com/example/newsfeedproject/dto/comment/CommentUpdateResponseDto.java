@@ -26,7 +26,7 @@ public class CommentUpdateResponseDto {
 
     private final LocalDateTime updatedAt;
 
-    public CommentUpdateResponseDto(User findUser, Comment findComment,Long postId, CommentUpdateRequestDto requestDto) {
+    public CommentUpdateResponseDto(User findUser, Comment findComment,Long postId, CommentRequestDto requestDto) {
         this.id = findComment.getId();
         this.userId = findUser.getId();
         this.postId = postId;

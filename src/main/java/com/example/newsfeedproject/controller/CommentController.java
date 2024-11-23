@@ -22,13 +22,13 @@ public class CommentController {
 
     //댓글 작성
     @PostMapping
-    public ResponseEntity<CommentResponseDto> createComment(@Valid @RequestBody CommentRequestDto commentRequestDto,
+    public ResponseEntity<CommentResponseDto> createComment(@Valid @RequestBody CommentRequestDto requestDto,
                                                             @PathVariable Long postId,
                                                             HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = (String) session.getAttribute("email");
 
-        CommentResponseDto responseDto = commentService.createComment(commentRequestDto, email, postId);
+        CommentResponseDto responseDto = commentService.createComment(requestDto, email, postId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
@@ -44,14 +44,14 @@ public class CommentController {
 
     //댓글 수정
     @PatchMapping("/{commentId}")
-    public ResponseEntity<CommentUpdateResponseDto> updateComment(@Valid @RequestBody CommentUpdateRequestDto commentUpdateRequestDto,
+    public ResponseEntity<CommentUpdateResponseDto> updateComment(@Valid @RequestBody CommentRequestDto requestDto,
                                                                   @PathVariable Long postId,
                                                                   @PathVariable Long commentId,
                                                                   HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
-        return ResponseEntity.ok().body(commentService.updateComment(commentUpdateRequestDto, postId, commentId, email));
+        return ResponseEntity.ok().body(commentService.updateComment(requestDto, postId, commentId, email));
     }
 
     //댓글 삭제
