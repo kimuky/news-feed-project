@@ -80,6 +80,22 @@ public class FriendService {
         // 친구 요청 받은 사용자
         User toUser = findByIdOrElseThrow(friendId);
 
+        // 친구 요청이 있는 경우
+        List<Friend> findRequest = friendRepository.findFriendByToUserIdAndFromUserId(fromUser, toUser);
+
+        // 없으면 요청이 안왔기에 예외 처리
+        if (findRequest.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        // 이미 친구 요청을 한 경우
+        List<Friend> alreadyRequestOther = friendRepository.findFriendByToUserIdAndFromUserId(toUser, fromUser);
+
+        // 있으면 예외 처리
+        if (!alreadyRequestOther.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 친구 상태");
+        }
+
         if (fromUser.getId().equals(toUser.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자신에게 친구 수락을 할 수 없습니다.");
         }

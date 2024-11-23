@@ -1,12 +1,10 @@
 package com.example.newsfeedproject.service;
 
-import com.example.newsfeedproject.dto.comment.CommentRequestDto;
-import com.example.newsfeedproject.dto.comment.CommentResponseDto;
-import com.example.newsfeedproject.dto.comment.CommentUpdateRequestDto;
-import com.example.newsfeedproject.dto.comment.CommentUpdateResponseDto;
+import com.example.newsfeedproject.dto.comment.*;
 import com.example.newsfeedproject.dto.post.like.CommentLikeResponseDto;
 import com.example.newsfeedproject.entity.Comment;
 import com.example.newsfeedproject.entity.CommentLike;
+import com.example.newsfeedproject.entity.Post;
 import com.example.newsfeedproject.entity.User;
 import com.example.newsfeedproject.repository.CommentLikeRepository;
 import com.example.newsfeedproject.repository.CommentRepository;
@@ -26,59 +24,73 @@ import java.util.List;
 public class CommentService {
 
     private final PostRepository postRepository;
-
     private final UserRepository userRepository;
-
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
 
     //댓글 작성
     @Transactional
-    public CommentResponseDto createComment(CommentRequestDto commentRequestDto, String email) {
+    public CommentResponseDto createComment(CommentRequestDto requestDto, String email, Long postId) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
-        Comment comment = new Comment(commentRequestDto.getWriteComment(), findUser);
+
+        Post findPost = postRepository.findById(postId).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없음"));
+
+        Comment comment = new Comment(findPost, findUser, requestDto.getWriteComment());
 
         Comment saveComment = commentRepository.save(comment);
-        return CommentResponseDto.fromEntity(saveComment);
+        return new CommentResponseDto(saveComment);
     }
 
-    private Comment findCommentById(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(()
-                -> new IllegalArgumentException("잘못된 댓글 id입니다."));
-    }
-
-    public List<CommentResponseDto> findAllComments() {
-        List<Comment> comments = commentRepository.findAll();
-
-        return comments
-                .stream()
-                .map(CommentResponseDto::toDto)
-                .toList();
+    @Transactional
+    public List<CommentAllResponseDto> findAllComments(Long postId) {
+        List<Comment> commentList = commentRepository.findCommentByPostId(postId);
+        List<CommentAllResponseDto> transformDtoList = commentList.stream().map(CommentAllResponseDto::new
+        ).toList();
+        return transformDtoList;
     }
 
     //댓글 수정
     @Transactional
-    public CommentUpdateResponseDto updateComment(Long commentId, CommentUpdateRequestDto commentUpdateRequestDto,
-                                                  String email) {
+    public CommentUpdateResponseDto updateComment(CommentUpdateRequestDto requestDto, Long postId, Long commentId, String email) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
-        Comment comment = findCommentById(commentId);
-        comment.update(commentUpdateRequestDto.getWriteComment(), findUser);
 
-        return CommentUpdateResponseDto.fromEntity(commentRepository.save(comment));
+        Post findPost = postRepository.findById(postId).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없음"));
+
+        Comment findComment = findCommentById(commentId);
+
+        // 수정하려는 유저가 게시물 주인 혹은 댓글의 주인인 경우에만 수정 가능
+        if (findUser.getId().equals(findComment.getUser().getId()) ||
+                findPost.getUser().getId().equals(findUser.getId())) {
+            return new CommentUpdateResponseDto(findUser, findComment, postId, requestDto);
+        }
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
     }
 
     //댓글 삭제
     @Transactional
-    public void deleteComment(Long commentId, String email) {
+    public void deleteComment(Long postId, Long commentId, String email) {
         User findUser = userRepository.findUserByEmail(email).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
-        Comment findComment = findCommentById(commentId);
-        commentRepository.deleteById(commentId);
-    }
 
+        Post findPost = postRepository.findById(postId).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없음"));
+
+        Comment findComment = findCommentById(commentId);
+
+        if (findUser.getId().equals(findComment.getUser().getId()) ||
+                findPost.getUser().getId().equals(findUser.getId())) {
+            commentRepository.deleteById(commentId);
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
+        }
+    }
     //댓글 좋아요 누름
+
     @Transactional
     public CommentLikeResponseDto insertLike(Long commentId, String email) {
 
@@ -117,6 +129,11 @@ public class CommentService {
 
         commentLikeRepository.delete(commentLike);
         comment.decrementLikeCount();
+    }
+
+    private Comment findCommentById(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(()
+                -> new IllegalArgumentException("잘못된 댓글 id입니다."));
     }
 
 
