@@ -105,7 +105,7 @@ public class UserService {
         findUser.softDelete();
 
         // 탈퇴 이후, 친구 삭제
-        friendRepository.deleteByFromUserIdOrToUserId(findUser, findUser);
+        friendRepository.deleteByFromUserIdOrToUserIdAndFriendRequest(findUser, findUser, 1);
     }
 
     private User findByUserIdOrElseThrow(Long id) {
