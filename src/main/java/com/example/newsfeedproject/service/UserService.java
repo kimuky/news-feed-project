@@ -24,8 +24,6 @@ public class UserService {
 
     @Transactional
     public RegisterUserResponseDto registerUser(RegisterUserRequestDto requestDto) {
-        // 비밀번호 암호화
-        User user = new User(requestDto, passwordEncoder.encode(requestDto.getPassword()));
         Optional<User> findUser = userRepository.findUserByEmail(requestDto.getEmail());
 
         // 아메일이 중복일 시, 중복 예외 처리
@@ -33,20 +31,25 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "중복된 아이디입니다.");
         }
 
+        // 비밀번호 암호화하여 넘겨줌
+        User user = new User(requestDto, passwordEncoder.encode(requestDto.getPassword()));
         User saveUser = userRepository.save(user);
 
         return new RegisterUserResponseDto(saveUser);
     }
 
     public LoginUserResponseDto login(LoginUserRequestDto requestDto) {
-        User findUser = findUserByEmailOrElseThrow(requestDto.getEmail());
+        // 유저를 찾는데 탈퇴하지 않은 유저를 찾음
+        User findActivatedUser = userRepository
+                .findUserByEmailAndActivated(requestDto.getEmail(), 1)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         // 패스워드가 일치하지 않을 시, 예외처리
-        if (!passwordEncoder.matches(requestDto.getPassword(), findUser.getPassword())) {
+        if (!passwordEncoder.matches(requestDto.getPassword(), findActivatedUser.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 틀림");
         }
 
-        return new LoginUserResponseDto(findUser);
+        return new LoginUserResponseDto(findActivatedUser);
     }
 
     public ProfileUserResponseDto findByUserId(Long userId) {
@@ -59,8 +62,9 @@ public class UserService {
     public ProfileUserResponseDto updateProfile(Long userId, UpdateUserRequestDto requestDto, String email) {
         User findUser = findByUserIdOrElseThrow(userId);
 
-        // 인가
-        if (!findUser.getEmail().equals(email)) {
+        // 인증
+        if (!passwordEncoder.matches(requestDto.getOriginalPassword(), findUser.getPassword()) ||
+            !findUser.getEmail().equals(email)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "해당 프로필 유저가 아님");
         }
 
@@ -76,17 +80,17 @@ public class UserService {
             findUser.updateIntroduce(requestDto.getIntroduce());
         }
 
-        if (requestDto.getPassword() != null) {
-            if(!Pattern.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$", requestDto.getPassword())) {
+        if (requestDto.getChangePassword() != null) {
+            if(!Pattern.matches("^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$", requestDto.getChangePassword())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "영어, 숫자, 특수문자 포함 8~20글자까지 입력해주세요");
             }
-            findUser.updatePassword(passwordEncoder.encode(requestDto.getPassword()));
+            findUser.updatePassword(passwordEncoder.encode(requestDto.getChangePassword()));
         }
         return new ProfileUserResponseDto(findUser);
     }
 
     @Transactional
-    public void softDeleteProfile(Long userId, PasswordUserRequestDto requestDto, String email) {
+    public void softDeleteUser(Long userId, PasswordUserRequestDto requestDto, String email) {
         User findUser = findByUserIdOrElseThrow(userId);
 
         if (!findUser.getEmail().equals(email) ) {
@@ -100,12 +104,8 @@ public class UserService {
         // 유저 소프트딜리트
         findUser.softDelete();
 
-        friendRepository.deleteByFromUserIdOrToUserId(findUser, findUser);
-    }
-
-    private User findUserByEmailOrElseThrow(String email) {
-        return userRepository.findUserByEmail(email).orElseThrow(()
-                -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이메일을 찾을 수 없음"));
+        // 탈퇴 이후, 친구 삭제
+        friendRepository.deleteByFromUserIdOrToUserIdAndFriendRequest(findUser, findUser, 1);
     }
 
     private User findByUserIdOrElseThrow(Long id) {

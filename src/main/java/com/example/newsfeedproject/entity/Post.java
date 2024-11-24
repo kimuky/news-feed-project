@@ -20,14 +20,17 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public void setUser(User user) {
+    @Column(nullable = false)
+    private int likeCount = 0;
+
+    public void setUser (User user ) {
         this.user = user;
     }
 
     public Post() {
     }
 
-    public Post(User user, String title, String content) {
+    public Post(User user,String title, String content ) {
         this.title = title;
         this.content = content;
         this.user = user;
@@ -37,5 +40,13 @@ public class Post extends BaseEntity {
         this.user = user;
         this.title = title;
         this.content = content;
+    }
+
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        this.likeCount--;
     }
 }

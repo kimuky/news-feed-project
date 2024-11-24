@@ -3,39 +3,32 @@ package com.example.newsfeedproject.dto.comment;
 import com.example.newsfeedproject.entity.Comment;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class CommentResponseDto {
 
-    private Long id;
+    private final Long id;
 
-    private String commentWriter;
+    private final Long userId;
 
-    private String writeComment;
+    private final Long PostId;
 
-    public CommentResponseDto() {
-    }
+    private final String userName;
 
-    public CommentResponseDto(Long id, String commentWriter, String writeComment) {
-        this.id = id;
-        this.commentWriter = commentWriter;
-        this.writeComment = writeComment;
-    }
+    private final String content;
 
-    public static CommentResponseDto fromEntity(Comment comment) {
-        CommentResponseDto dto = new CommentResponseDto();
+    private final int likeCount;
 
-        dto.id = comment.getId();
-        dto.writeComment = comment.getWriteComment();
-        dto.commentWriter = comment.getUser().getName();
+    private LocalDateTime createdAt;
 
-        return dto;
-    }
-
-    public static CommentResponseDto toDto(Comment comment) {
-        return new CommentResponseDto(
-                comment.getId(),
-                comment.getUser().getName(),
-                comment.getWriteComment()
-        );
+    public CommentResponseDto(Comment findComment) {
+        this.id = findComment.getId();
+        this.userId = findComment.getUser().getId();
+        this.PostId = findComment.getPost().getId();
+        this.userName = findComment.getUser().getName();
+        this.content = findComment.getWriteComment();
+        this.likeCount = findComment.getLikeCount();
+        this.createdAt = LocalDateTime.now();
     }
 }

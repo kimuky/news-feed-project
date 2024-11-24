@@ -27,7 +27,8 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<LoginUserResponseDto> login(@Valid @RequestBody LoginUserRequestDto requestDto, HttpServletRequest servletRequest) {
+    public ResponseEntity<LoginUserResponseDto> login(@Valid @RequestBody LoginUserRequestDto requestDto,
+                                                      HttpServletRequest servletRequest) {
         LoginUserResponseDto responseDto = userService.login(requestDto);
 
         HttpSession session = servletRequest.getSession();
@@ -45,9 +46,9 @@ public class UserController {
     }
 
     // 유저프로필 수정
-    @PatchMapping("/{userId}")
+    @PutMapping("/{userId}")
     public ResponseEntity<ProfileUserResponseDto> updateProfile(@PathVariable Long userId,
-                                                                @RequestBody UpdateUserRequestDto requestDto,
+                                                                @Valid @RequestBody UpdateUserRequestDto requestDto,
                                                                 HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
@@ -58,15 +59,15 @@ public class UserController {
     }
 
     // 회원 탈퇴
-    @PutMapping("/{userId}")
-    public ResponseEntity<Void> deleteProfile(@PathVariable Long userId,
-                                              @RequestBody PasswordUserRequestDto requestDto,
-                                              HttpServletRequest servletRequest) {
+    @PatchMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId,
+                                           @Valid @RequestBody PasswordUserRequestDto requestDto,
+                                           HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
 
-        userService.softDeleteProfile(userId, requestDto, email);
-
+        userService.softDeleteUser(userId, requestDto, email);
+        session.removeAttribute(email);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
