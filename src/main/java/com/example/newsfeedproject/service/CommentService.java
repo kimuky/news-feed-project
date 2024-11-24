@@ -69,6 +69,7 @@ public class CommentService {
         // 수정하려는 유저가 게시물 주인 혹은 댓글의 주인인 경우에만 수정 가능
         if (findUser.getId().equals(findComment.getUser().getId()) ||
                 findPost.getUser().getId().equals(findUser.getId())) {
+            findComment.updateComment(requestDto.getWriteComment());
             return new CommentUpdateResponseDto(findUser, findComment, postId, requestDto);
         }
 

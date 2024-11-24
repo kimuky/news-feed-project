@@ -17,6 +17,8 @@ public class UpdateUserRequestDto {
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$", message = "영어, 숫자, 특수문자 포함 8~20글자까지 입력해주세요")
     private final String originalPassword;
 
+    @NotBlank(message = "패스워드를 꼭 입력해주세요")
+    @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$", message = "영어, 숫자, 특수문자 포함 8~20글자까지 입력해주세요")
     private final String changePassword;
 
     public UpdateUserRequestDto(String name, int age, String introduce, String originalPassword, String changePassword) {

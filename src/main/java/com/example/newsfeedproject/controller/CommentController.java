@@ -56,14 +56,14 @@ public class CommentController {
 
     //댓글 삭제
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<String> deleteComment(@PathVariable Long postId,
+    public ResponseEntity<Void> deleteComment(@PathVariable Long postId,
                                                 @PathVariable Long commentId,
                                                 HttpServletRequest servletRequest) {
         HttpSession session = servletRequest.getSession();
         String email = String.valueOf(session.getAttribute("email"));
         commentService.deleteComment(postId, commentId, email);
 
-        return ResponseEntity.ok().body("삭제되었습니다.");
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     //댓글 좋아요
