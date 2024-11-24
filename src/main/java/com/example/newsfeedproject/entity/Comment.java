@@ -34,10 +34,8 @@ public class Comment extends BaseEntity {
         this.writeComment = writeComment;
     }
 
-    public void update(Post post, String writeComment, User user) {
-        this.post = post;
+    public void updateComment(String writeComment) {
         this.writeComment = writeComment;
-        this.user = user;
     }
 
     public void incrementLikeCount() {
